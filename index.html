@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SolarGrid Map — Zambia</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- MarkerCluster CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Reset & Variables ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0e1117;
+      --surface:   #161b27;
+      --surface2:  #1e2535;
+      --border:    rgba(255,255,255,0.07);
+      --border2:   rgba(255,255,255,0.12);
+      --text:      #e8eaf0;
+      --muted:     #7a8499;
+      --accent:    #f59e0b;       /* amber — solar */
+      --accent2:   #34d399;       /* green — active */
+      --danger:    #f87171;       /* red — inactive */
+      --grid-col:  #f59e0b;
+      --cust-col:  #60a5fa;
+      --infra-col: #a78bfa;
+      --sidebar-w: 300px;
+      --radius:    10px;
+      --shadow:    0 8px 32px rgba(0,0,0,0.45);
+    }
+
+    html, body { width: 100%; height: 100%; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
+
+    /* ── Layout ── */
+    #app { display: flex; width: 100%; height: 100%; }
+
+    /* ── Sidebar ── */
+    #sidebar {
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
+      height: 100%;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      z-index: 500;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.35);
+      transition: transform 0.3s ease;
+    }
+
+    #sidebar.collapsed { transform: translateX(calc(-1 * var(--sidebar-w))); }
+
+    .sidebar-header {
+      padding: 20px 18px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+
+    .logo-text {
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--text);
+    }
+
+    .logo-sub { font-size: 11px; color: var(--muted); letter-spacing: 0.03em; margin-top: 1px; }
+
+    /* Stats row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stat-card {
+      background: var(--surface2);
+      border-radius: 8px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+
+    .stat-card .num {
+      font-family: 'Space Mono', monospace;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .stat-card .lbl {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* Sidebar body */
+    .sidebar-body { flex: 1; overflow-y: auto; padding: 16px 18px; }
+    .sidebar-body::-webkit-scrollbar { width: 4px; }
+    .sidebar-body::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+    /* Section labels */
+    .section-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 8px;
+      margin-top: 18px;
+    }
+
+    .section-label:first-child { margin-top: 0; }
+
+    /* Search */
+    .search-wrap { position: relative; margin-bottom: 4px; }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 10px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    #searchInput {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      padding: 9px 10px 9px 34px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    #searchInput:focus { border-color: var(--accent); }
+    #searchInput::placeholder { color: var(--muted); }
+
+    /* Search results dropdown */
+    #searchResults {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0; right: 0;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      z-index: 600;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    #searchResults.open { display: block; }
+
+    .search-result-item {
+      padding: 9px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s;
+    }
+
+    .search-result-item:hover { background: var(--border); }
+
+    .search-result-item .ri-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--grid-col);
+      flex-shrink: 0;
+    }
+
+    /* Select filters */
+    select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      padding: 9px 10px;
+      outline: none;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: border-color 0.2s;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a8499' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+
+    select:focus { border-color: var(--accent); }
+    select option { background: var(--surface2); }
+
+    /* Layer toggles */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .toggle-row:last-child { border-bottom: none; }
+
+    .toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .toggle-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Switch */
+    .switch { position: relative; width: 36px; height: 20px; flex-shrink: 0; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+
+    .slider {
+      position: absolute; inset: 0;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.25s;
+    }
+
+    .slider::before {
+      content: '';
+      position: absolute;
+      width: 14px; height: 14px;
+      left: 2px; top: 2px;
+      background: var(--muted);
+      border-radius: 50%;
+      transition: transform 0.25s, background 0.25s;
+    }
+
+    .switch input:checked + .slider { background: var(--accent); border-color: var(--accent); }
+    .switch input:checked + .slider::before { transform: translateX(16px); background: #0e1117; }
+
+    /* Legend */
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 5px 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .legend-icon {
+      width: 24px; height: 24px;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    /* Active filter pill */
+    #activeFilters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .filter-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(245,158,11,0.15);
+      border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 20px;
+      padding: 3px 10px 3px 8px;
+      font-size: 11px;
+      color: var(--accent);
+    }
+
+    .filter-pill button {
+      background: none;
+      border: none;
+      color: var(--accent);
+      cursor: pointer;
+      padding: 0;
+      font-size: 14px;
+      line-height: 1;
+      display: flex;
+    }
+
+    /* Reset button */
+    #resetFilters {
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      padding: 8px;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: all 0.2s;
+    }
+
+    #resetFilters:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Map ── */
+    #map-wrap { flex: 1; position: relative; }
+    #map { width: 100%; height: 100%; }
+
+    /* Toggle sidebar button */
+    #sidebarToggle {
+      position: absolute;
+      top: 14px; left: 14px;
+      z-index: 600;
+      width: 38px; height: 38px;
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 9px;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow);
+      color: var(--text);
+    }
+
+    /* Customer count badge */
+    #mapBadge {
+      position: absolute;
+      bottom: 24px; right: 16px;
+      z-index: 600;
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--muted);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #mapBadge strong { color: var(--text); font-size: 14px; }
+
+    /* ── Modal ── */
+    #modalOverlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+      animation: fadeIn 0.2s ease;
+    }
+
+    #modalOverlay.open { display: flex; }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    #modal {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 16px;
+      width: 420px;
+      max-width: calc(100vw - 32px);
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+      animation: slideUp 0.25s ease;
+    }
+
+    .modal-header {
+      padding: 20px 20px 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .modal-avatar {
+      width: 56px; height: 56px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(96,165,250,0.2), rgba(96,165,250,0.05));
+      border: 1px solid rgba(96,165,250,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .modal-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
+
+    .modal-title-wrap { flex: 1; }
+
+    .modal-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .modal-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 5px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    .modal-status.active { background: rgba(52,211,153,0.15); color: var(--accent2); }
+    .modal-status.inactive { background: rgba(248,113,113,0.15); color: var(--danger); }
+    .modal-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    #modalClose {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 18px;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    #modalClose:hover { color: var(--text); border-color: var(--border2); }
+
+    .modal-body { padding: 16px 20px 20px; }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .info-block {
+      background: var(--surface2);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    .info-block .key {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .info-block .val {
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .info-block.full { grid-column: 1 / -1; }
+
+    .coord-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface2);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .coord-row span { color: var(--text); }
+
+    .modal-image {
+      width: 100%;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .modal-image img { width: 100%; display: block; }
+
+    .img-placeholder {
+      height: 100px;
+      background: var(--surface2);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 12px;
+      gap: 6px;
+      border: 1px dashed var(--border2);
+    }
+
+    /* ── Leaflet overrides ── */
+    .leaflet-popup-content-wrapper {
+      background: var(--surface2) !important;
+      border: 1px solid var(--border2) !important;
+      border-radius: 10px !important;
+      box-shadow: var(--shadow) !important;
+      color: var(--text) !important;
+      font-family: 'DM Sans', sans-serif !important;
+    }
+
+    .leaflet-popup-tip { background: var(--surface2) !important; }
+    .leaflet-popup-content { margin: 12px 14px !important; font-size: 13px !important; }
+
+    .popup-title { font-weight: 600; margin-bottom: 4px; color: var(--text); }
+    .popup-sub { color: var(--muted); font-size: 12px; }
+    .popup-badge {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 500;
+    }
+
+    .pb-grid { background: rgba(245,158,11,0.15); color: var(--accent); }
+    .pb-infra { background: rgba(167,139,250,0.15); color: var(--infra-col); }
+
+    .marker-cluster-small,
+    .marker-cluster-medium,
+    .marker-cluster-large { background-color: rgba(96,165,250,0.15) !important; }
+    .marker-cluster-small div,
+    .marker-cluster-medium div,
+    .marker-cluster-large div {
+      background-color: rgba(96,165,250,0.7) !important;
+      color: #fff !important;
+      font-family: 'Space Mono', monospace !important;
+      font-size: 12px !important;
+      font-weight: 700 !important;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      #sidebar { position: absolute; left: 0; top: 0; z-index: 700; }
+      #sidebarToggle { display: flex; }
+      #sidebar:not(.collapsed) ~ #map-wrap #sidebarToggle { left: calc(var(--sidebar-w) + 14px); }
+    }
+
+    /* Scrollbar */
+    #modal::-webkit-scrollbar { width: 4px; }
+    #modal::-webkit-scrollbar-track { background: transparent; }
+    #modal::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Sidebar -->
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon">☀️</div>
+        <div>
+          <div class="logo-text">SOLARGRID</div>
+          <div class="logo-sub">Customer Map · Zambia</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="num" id="statGrids">—</div>
+        <div class="lbl">Grids</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="statCustomers">—</div>
+        <div class="lbl">Customers</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="statInfra">—</div>
+        <div class="lbl">Infra</div>
+      </div>
+    </div>
+
+    <div class="sidebar-body">
+
+      <!-- Search -->
+      <div class="section-label">Search Grids</div>
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" placeholder="Search mini-grids…" autocomplete="off" />
+        <div id="searchResults"></div>
+      </div>
+
+      <!-- Filters -->
+      <div class="section-label" style="margin-top:18px">Filter Customers</div>
+      <select id="filterGrid">
+        <option value="">All Solar Grids</option>
+      </select>
+      <select id="filterMachine">
+        <option value="">All Machine Types</option>
+      </select>
+
+      <div id="activeFilters"></div>
+      <button id="resetFilters">✕ Reset Filters</button>
+
+      <!-- Layer Visibility -->
+      <div class="section-label">Layers</div>
+      <div class="toggle-row">
+        <div class="toggle-label">
+          <span class="toggle-dot" style="background:var(--grid-col)"></span>
+          Solar Mini-Grids
+        </div>
+        <label class="switch"><input type="checkbox" id="toggleGrids" checked><span class="slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-label">
+          <span class="toggle-dot" style="background:var(--cust-col)"></span>
+          Customers
+        </div>
+        <label class="switch"><input type="checkbox" id="toggleCustomers" checked><span class="slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-label">
+          <span class="toggle-dot" style="background:var(--infra-col)"></span>
+          Infrastructure
+        </div>
+        <label class="switch"><input type="checkbox" id="toggleInfra" checked><span class="slider"></span></label>
+      </div>
+
+      <!-- Legend -->
+      <div class="section-label">Legend</div>
+      <div class="legend-item">
+        <div class="legend-icon" style="background:rgba(245,158,11,0.15);color:var(--grid-col)">⚡</div>
+        Solar Mini-Grid
+      </div>
+      <div class="legend-item">
+        <div class="legend-icon" style="background:rgba(96,165,250,0.15);color:var(--cust-col)">👤</div>
+        Customer (clustered)
+      </div>
+      <div class="legend-item">
+        <div class="legend-icon" style="background:rgba(167,139,250,0.15);color:var(--infra-col)">🏫</div>
+        School
+      </div>
+      <div class="legend-item">
+        <div class="legend-icon" style="background:rgba(167,139,250,0.15);color:var(--infra-col)">🏥</div>
+        Clinic
+      </div>
+      <div class="legend-item">
+        <div class="legend-icon" style="background:rgba(167,139,250,0.15);color:var(--infra-col)">💧</div>
+        Borehole
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- Map -->
+  <div id="map-wrap">
+    <button id="sidebarToggle" title="Toggle Sidebar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div id="map"></div>
+    <div id="mapBadge">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+      Showing <strong id="visibleCount">0</strong>&nbsp;customers
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="modalOverlay">
+  <div id="modal">
+    <div class="modal-header">
+      <div class="modal-avatar" id="modalAvatar">👤</div>
+      <div class="modal-title-wrap">
+        <div class="modal-name" id="modalName">—</div>
+        <div class="modal-status active" id="modalStatus">active</div>
+      </div>
+      <button id="modalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="info-grid">
+        <div class="info-block">
+          <div class="key">Solar Grid</div>
+          <div class="val" id="modalGrid">—</div>
+        </div>
+        <div class="info-block">
+          <div class="key">Machine Type</div>
+          <div class="val" id="modalMachine">—</div>
+        </div>
+        <div class="info-block full">
+          <div class="key">Phone Number</div>
+          <div class="val" id="modalPhone">—</div>
+        </div>
+      </div>
+      <div class="coord-row">
+        📍 <span id="modalCoords">—</span>
+      </div>
+      <div id="modalImageWrap">
+        <div class="img-placeholder">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          No image available
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- MarkerCluster JS -->
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+<script>
+// ─────────────────────────────────────────────
+// Helpers: Custom Icons
+// ─────────────────────────────────────────────
+function makeIcon(emoji, bg, border, size = 36) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="
+      width:${size}px;height:${size}px;
+      background:${bg};
+      border:2px solid ${border};
+      border-radius:${size * 0.28}px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:${size * 0.5}px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.4);
+    ">${emoji}</div>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+    popupAnchor: [0, -(size / 2) - 4]
+  });
+}
+
+const ICONS = {
+  grid:    makeIcon('⚡', 'rgba(245,158,11,0.2)', '#f59e0b', 40),
+  customer: makeIcon('👤', 'rgba(96,165,250,0.2)', '#60a5fa', 34),
+  school:  makeIcon('🏫', 'rgba(167,139,250,0.2)', '#a78bfa', 34),
+  clinic:  makeIcon('🏥', 'rgba(167,139,250,0.2)', '#a78bfa', 34),
+  borehole: makeIcon('💧', 'rgba(167,139,250,0.2)', '#a78bfa', 34),
+};
+
+// ─────────────────────────────────────────────
+// Map Init
+// ─────────────────────────────────────────────
+const map = L.map('map', {
+  center: [-13.5, 28.5],
+  zoom: 7,
+  zoomControl: false
+});
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  maxZoom: 19
+}).addTo(map);
+
+L.control.zoom({ position: 'bottomleft' }).addTo(map);
+
+// ─────────────────────────────────────────────
+// Layer Groups
+// ─────────────────────────────────────────────
+const gridLayer    = L.layerGroup().addTo(map);
+const customerCluster = L.markerClusterGroup({
+  spiderfyOnMaxZoom: true,
+  showCoverageOnHover: false,
+  maxClusterRadius: 60,
+}).addTo(map);
+const infraLayer   = L.layerGroup().addTo(map);
+
+// ─────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────
+let allData = null;
+let activeFilterGrid    = '';
+let activeFilterMachine = '';
+let allCustomerMarkers  = [];  // { marker, data }
+
+// ─────────────────────────────────────────────
+// Render
+// ─────────────────────────────────────────────
+function renderMap(data) {
+  gridLayer.clearLayers();
+  customerCluster.clearLayers();
+  infraLayer.clearLayers();
+  allCustomerMarkers = [];
+
+  const gridMap = {};
+  data.grids.forEach(g => { gridMap[g.id] = g; });
+
+  // ── Grids ──
+  data.grids.forEach(g => {
+    const m = L.marker([g.lat, g.lng], { icon: ICONS.grid })
+      .bindPopup(`
+        <div class="popup-title">⚡ ${g.name}</div>
+        <div class="popup-sub">${g.operator}</div>
+        <div class="popup-sub">${g.capacity_kw} kW · Commissioned ${g.commissioned}</div>
+        <span class="popup-badge pb-grid">Solar Mini-Grid</span>
+      `);
+    gridLayer.addLayer(m);
+  });
+
+  // ── Customers ──
+  data.customers.forEach(c => {
+    const passesGrid    = !activeFilterGrid    || c.grid_id === activeFilterGrid;
+    const passesMachine = !activeFilterMachine || c.machine === activeFilterMachine;
+    if (!passesGrid || !passesMachine) return;
+
+    const grid = gridMap[c.grid_id];
+    const m = L.marker([c.lat, c.lng], { icon: ICONS.customer });
+    m.on('click', () => openModal(c, grid));
+    customerCluster.addLayer(m);
+    allCustomerMarkers.push({ marker: m, data: c });
+  });
+
+  // ── Infrastructure ──
+  data.infrastructure.forEach(inf => {
+    const icon = ICONS[inf.type] || ICONS.borehole;
+    const typeLabel = inf.type.charAt(0).toUpperCase() + inf.type.slice(1);
+    const m = L.marker([inf.lat, inf.lng], { icon })
+      .bindPopup(`
+        <div class="popup-title">${typeLabel === 'School' ? '🏫' : typeLabel === 'Clinic' ? '🏥' : '💧'} ${inf.name}</div>
+        <div class="popup-sub" style="margin-top:4px">${inf.description}</div>
+        <span class="popup-badge pb-infra">${typeLabel}</span>
+      `);
+    infraLayer.addLayer(m);
+  });
+
+  document.getElementById('visibleCount').textContent = allCustomerMarkers.length;
+}
+
+// ─────────────────────────────────────────────
+// Populate Filters
+// ─────────────────────────────────────────────
+function populateFilters(data) {
+  const gridSel    = document.getElementById('filterGrid');
+  const machineSel = document.getElementById('filterMachine');
+
+  data.grids.forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g.id; opt.textContent = g.name;
+    gridSel.appendChild(opt);
+  });
+
+  const machines = [...new Set(data.customers.map(c => c.machine))].sort();
+  machines.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m; opt.textContent = m;
+    machineSel.appendChild(opt);
+  });
+}
+
+// ─────────────────────────────────────────────
+// Stats
+// ─────────────────────────────────────────────
+function updateStats(data) {
+  document.getElementById('statGrids').textContent     = data.grids.length;
+  document.getElementById('statCustomers').textContent = data.customers.length;
+  document.getElementById('statInfra').textContent     = data.infrastructure.length;
+}
+
+// ─────────────────────────────────────────────
+// Active Filter Pills
+// ─────────────────────────────────────────────
+function renderPills(data) {
+  const wrap = document.getElementById('activeFilters');
+  wrap.innerHTML = '';
+  if (!activeFilterGrid && !activeFilterMachine) return;
+
+  if (activeFilterGrid) {
+    const g = data.grids.find(x => x.id === activeFilterGrid);
+    addPill(wrap, g ? g.name : activeFilterGrid, () => {
+      activeFilterGrid = '';
+      document.getElementById('filterGrid').value = '';
+      renderPills(data);
+      renderMap(data);
+    });
+  }
+  if (activeFilterMachine) {
+    addPill(wrap, activeFilterMachine, () => {
+      activeFilterMachine = '';
+      document.getElementById('filterMachine').value = '';
+      renderPills(data);
+      renderMap(data);
+    });
+  }
+}
+
+function addPill(container, label, onRemove) {
+  const pill = document.createElement('div');
+  pill.className = 'filter-pill';
+  pill.innerHTML = `${label}<button>×</button>`;
+  pill.querySelector('button').addEventListener('click', onRemove);
+  container.appendChild(pill);
+}
+
+// ─────────────────────────────────────────────
+// Modal
+// ─────────────────────────────────────────────
+function openModal(customer, grid) {
+  document.getElementById('modalName').textContent   = customer.name;
+  document.getElementById('modalGrid').textContent   = grid ? grid.name : '—';
+  document.getElementById('modalMachine').textContent = customer.machine;
+  document.getElementById('modalPhone').textContent  = customer.phone;
+  document.getElementById('modalCoords').textContent = `${customer.lat.toFixed(5)}, ${customer.lng.toFixed(5)}`;
+
+  const status = document.getElementById('modalStatus');
+  status.textContent     = customer.account_status;
+  status.className       = `modal-status ${customer.account_status}`;
+
+  const imgWrap = document.getElementById('modalImageWrap');
+  if (customer.image) {
+    imgWrap.innerHTML = `<div class="modal-image"><img src="${customer.image}" alt="${customer.name}" /></div>`;
+  } else {
+    imgWrap.innerHTML = `<div class="img-placeholder">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+      </svg>No image available</div>`;
+  }
+
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+document.getElementById('modalClose').addEventListener('click', closeModal);
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+// ─────────────────────────────────────────────
+// Grid Search
+// ─────────────────────────────────────────────
+function initSearch(data) {
+  const input   = document.getElementById('searchInput');
+  const results = document.getElementById('searchResults');
+
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    results.innerHTML = '';
+    if (!q) { results.classList.remove('open'); return; }
+
+    const matches = data.grids.filter(g => g.name.toLowerCase().includes(q));
+    if (!matches.length) { results.classList.remove('open'); return; }
+
+    matches.forEach(g => {
+      const item = document.createElement('div');
+      item.className = 'search-result-item';
+      item.innerHTML = `<span class="ri-dot"></span>${g.name}`;
+      item.addEventListener('click', () => {
+        map.setView([g.lat, g.lng], 13);
+        gridLayer.eachLayer(m => {
+          if (Math.abs(m.getLatLng().lat - g.lat) < 0.0001) {
+            m.openPopup();
+          }
+        });
+        input.value = '';
+        results.classList.remove('open');
+      });
+      results.appendChild(item);
+    });
+
+    results.classList.add('open');
+  });
+
+  document.addEventListener('click', e => {
+    if (!input.contains(e.target) && !results.contains(e.target)) {
+      results.classList.remove('open');
+    }
+  });
+}
+
+// ─────────────────────────────────────────────
+// Layer Toggles
+// ─────────────────────────────────────────────
+function initLayerToggles() {
+  document.getElementById('toggleGrids').addEventListener('change', function() {
+    this.checked ? map.addLayer(gridLayer) : map.removeLayer(gridLayer);
+  });
+  document.getElementById('toggleCustomers').addEventListener('change', function() {
+    this.checked ? map.addLayer(customerCluster) : map.removeLayer(customerCluster);
+  });
+  document.getElementById('toggleInfra').addEventListener('change', function() {
+    this.checked ? map.addLayer(infraLayer) : map.removeLayer(infraLayer);
+  });
+}
+
+// ─────────────────────────────────────────────
+// Filter Events
+// ─────────────────────────────────────────────
+function initFilters(data) {
+  document.getElementById('filterGrid').addEventListener('change', function() {
+    activeFilterGrid = this.value;
+    renderPills(data);
+    renderMap(data);
+  });
+
+  document.getElementById('filterMachine').addEventListener('change', function() {
+    activeFilterMachine = this.value;
+    renderPills(data);
+    renderMap(data);
+  });
+
+  document.getElementById('resetFilters').addEventListener('click', () => {
+    activeFilterGrid = '';
+    activeFilterMachine = '';
+    document.getElementById('filterGrid').value    = '';
+    document.getElementById('filterMachine').value = '';
+    renderPills(data);
+    renderMap(data);
+  });
+}
+
+// ─────────────────────────────────────────────
+// Sidebar Toggle (mobile)
+// ─────────────────────────────────────────────
+document.getElementById('sidebarToggle').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+});
+
+// ─────────────────────────────────────────────
+// Boot: Load data.json
+// ─────────────────────────────────────────────
+fetch('data.json')
+  .then(r => {
+    if (!r.ok) throw new Error('Could not load data.json');
+    return r.json();
+  })
+  .then(data => {
+    allData = data;
+    updateStats(data);
+    populateFilters(data);
+    renderMap(data);
+    initSearch(data);
+    initLayerToggles();
+    initFilters(data);
+  })
+  .catch(err => {
+    console.error(err);
+    // Friendly error on map
+    const div = document.createElement('div');
+    div.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:999;background:rgba(14,17,23,0.85)';
+    div.innerHTML = `<div style="text-align:center;color:#e8eaf0;font-family:DM Sans,sans-serif">
+      <div style="font-size:40px;margin-bottom:12px">⚠️</div>
+      <div style="font-size:16px;font-weight:600">Could not load data.json</div>
+      <div style="font-size:13px;color:#7a8499;margin-top:6px">Make sure <code>data.json</code> is in the same folder as <code>index.html</code>.</div>
+    </div>`;
+    document.getElementById('map-wrap').appendChild(div);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,277 @@
+{
+  "grids": [
+    {
+      "id": "grid-001",
+      "name": "Lusaka North Mini-Grid",
+      "lat": -15.3875,
+      "lng": 28.3228,
+      "capacity_kw": 50,
+      "operator": "ZamSolar Ltd",
+      "status": "active",
+      "commissioned": "2022-03-15"
+    },
+    {
+      "id": "grid-002",
+      "name": "Kafue East Solar Hub",
+      "lat": -15.7733,
+      "lng": 28.1833,
+      "capacity_kw": 30,
+      "operator": "SunPower Zambia",
+      "status": "active",
+      "commissioned": "2021-09-01"
+    },
+    {
+      "id": "grid-003",
+      "name": "Chongwe Valley Grid",
+      "lat": -15.3333,
+      "lng": 28.6833,
+      "capacity_kw": 20,
+      "operator": "Rural Energy Co",
+      "status": "active",
+      "commissioned": "2023-01-20"
+    },
+    {
+      "id": "grid-004",
+      "name": "Siavonga Lakeshore Grid",
+      "lat": -16.5333,
+      "lng": 28.7167,
+      "capacity_kw": 40,
+      "operator": "ZamSolar Ltd",
+      "status": "active",
+      "commissioned": "2022-07-11"
+    },
+    {
+      "id": "grid-005",
+      "name": "Kabwe Central Grid",
+      "lat": -14.4469,
+      "lng": 28.4464,
+      "capacity_kw": 60,
+      "operator": "SunPower Zambia",
+      "status": "active",
+      "commissioned": "2020-11-30"
+    }
+  ],
+  "customers": [
+    {
+      "id": "cust-001",
+      "name": "Mwamba Chanda",
+      "grid_id": "grid-001",
+      "machine": "Maize Mill",
+      "phone": "+260 97 1234567",
+      "lat": -15.3900,
+      "lng": 28.3250,
+      "image": null,
+      "account_status": "active"
+    },
+    {
+      "id": "cust-002",
+      "name": "Bwalya Mutale",
+      "grid_id": "grid-001",
+      "machine": "Water Pump",
+      "phone": "+260 96 2345678",
+      "lat": -15.3860,
+      "lng": 28.3200,
+      "image": null,
+      "account_status": "active"
+    },
+    {
+      "id": "cust-003",
+      "name": "Chitalu Phiri",
+      "grid_id": "grid-001",
+      "machine": "Barber Shop",
+      "phone": "+260 95 3456789",
+      "lat": -15.3920,
+      "lng": 28.3190,
+      "image": null,
+      "account_status": "active"
+    },
+    {
+      "id": "cust-004",
+      "name": "Nkandu Lungu",
+      "grid_id": "grid-001",
+      "machine": "Phone Charging",
+      "phone": "+260 97 4567890",
+      "lat": -15.3855,
+      "lng": 28.3270,
+      "image": null,
+      "account_status": "inactive"
+    },
+    {
+      "id": "cust-005",
+      "name": "Temwani Banda",
+      "grid_id": "grid-002",
+      "machine": "Maize Mill",
+      "phone": "+260 96 5678901",
+      "lat": -15.7750,
+      "lng": 28.1850,
+      "image": null,
+      "account_status": "active"
+    },
+    {
+      "id": "cust-006",
+      "name": "Mulenga Kabwe",
+      "grid_id": "grid-002",
+      "machine": "Irrigation Pump",
+      "phone": "+260 95 6789012",
+      "lat": -15.7720,
+      "lng": 28.1810,
+      "image": null,
+      "account_status": "active"
+    },
+    {
+      "id": "cust-007",
+      "name": "Lukonde Simwanza",
+      "grid_id": "grid-002",
+      "machine": "Refrigerator",
+      "phone": "+260 97 7890123",
+      "lat": -15.7760,
+      "lng": 28.1870,
+      "image": null,
+      "account_status": "active"
+    },
+    {
+      "id": "cust-008",
+      "name": "Naomi Zulu",
+      "grid_id": "grid-003",
+      "machine": "Water Pump",
+      "phone": "+260 96 8901234",
+      "lat": -15.3310,
+      "lng": 28.6820,
+      "image": null,
+      "account_status": "active"
+    },
+    {
+      "id": "cust-009",
+      "name": "Francis Mwale",
+      "grid_id": "grid-003",
+      "machine": "Maize Mill",
+      "phone": "+260 95 9012345",
+      "lat": -15.3350,
+      "lng": 28.6850,
+      "image": null,
+      "account_status": "active"
+    },
+    {
+      "id": "cust-010",
+      "name": "Grace Mbewe",
+      "grid_id": "grid-004",
+      "machine": "Phone Charging",
+      "phone": "+260 97 0123456",
+      "lat": -16.5310,
+      "lng": 28.7150,
+      "image": null,
+      "account_status": "active"
+    },
+    {
+      "id": "cust-011",
+      "name": "Samuel Nkomo",
+      "grid_id": "grid-004",
+      "machine": "Barber Shop",
+      "phone": "+260 96 1234509",
+      "lat": -16.5360,
+      "lng": 28.7190,
+      "image": null,
+      "account_status": "active"
+    },
+    {
+      "id": "cust-012",
+      "name": "Charity Musonda",
+      "grid_id": "grid-004",
+      "machine": "Refrigerator",
+      "phone": "+260 95 2345610",
+      "lat": -16.5340,
+      "lng": 28.7130,
+      "image": null,
+      "account_status": "inactive"
+    },
+    {
+      "id": "cust-013",
+      "name": "Peter Sakala",
+      "grid_id": "grid-005",
+      "machine": "Maize Mill",
+      "phone": "+260 97 3456721",
+      "lat": -14.4490,
+      "lng": 28.4480,
+      "image": null,
+      "account_status": "active"
+    },
+    {
+      "id": "cust-014",
+      "name": "Alice Mutamba",
+      "grid_id": "grid-005",
+      "machine": "Irrigation Pump",
+      "phone": "+260 96 4567832",
+      "lat": -14.4450,
+      "lng": 28.4450,
+      "image": null,
+      "account_status": "active"
+    },
+    {
+      "id": "cust-015",
+      "name": "Daniel Chishimba",
+      "grid_id": "grid-005",
+      "machine": "Water Pump",
+      "phone": "+260 95 5678943",
+      "lat": -14.4480,
+      "lng": 28.4440,
+      "image": null,
+      "account_status": "active"
+    }
+  ],
+  "infrastructure": [
+    {
+      "id": "infra-001",
+      "name": "Lusaka North Primary School",
+      "type": "school",
+      "grid_id": "grid-001",
+      "lat": -15.3840,
+      "lng": 28.3210,
+      "description": "Government primary school powered by Grid 001. 320 pupils enrolled."
+    },
+    {
+      "id": "infra-002",
+      "name": "Kafue Rural Health Post",
+      "type": "clinic",
+      "grid_id": "grid-002",
+      "lat": -15.7800,
+      "lng": 28.1900,
+      "description": "Community health post serving ~2,500 residents. Has solar-powered refrigeration for vaccines."
+    },
+    {
+      "id": "infra-003",
+      "name": "Chongwe Community Borehole",
+      "type": "borehole",
+      "grid_id": "grid-003",
+      "lat": -15.3280,
+      "lng": 28.6800,
+      "description": "Solar-powered borehole providing clean water to 5 villages."
+    },
+    {
+      "id": "infra-004",
+      "name": "Siavonga Secondary School",
+      "type": "school",
+      "grid_id": "grid-004",
+      "lat": -16.5280,
+      "lng": 28.7100,
+      "description": "Secondary school with computer lab powered by mini-grid."
+    },
+    {
+      "id": "infra-005",
+      "name": "Kabwe Clinic",
+      "type": "clinic",
+      "grid_id": "grid-005",
+      "lat": -14.4420,
+      "lng": 28.4430,
+      "description": "Urban clinic with 24-hour power supply for maternity ward."
+    },
+    {
+      "id": "infra-006",
+      "name": "Kafue Market Borehole",
+      "type": "borehole",
+      "grid_id": "grid-002",
+      "lat": -15.7700,
+      "lng": 28.1780,
+      "description": "Market borehole serving local traders and households."
+    }
+  ]
+}
