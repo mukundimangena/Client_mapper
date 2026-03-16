@@ -1,56 +1,306 @@
-{
-  "grids": [
+{"grids": [
     {
       "id": "grid-001",
-      "name": "Lusaka North Mini-Grid",
-      "lat": -15.3875,
-      "lng": 28.3228,
+      "name": "Chimulambe",
+      "lat": -13.74498,
+      "lng": 32.10885,
       "capacity_kw": 50,
-      "operator": "ZamSolar Ltd",
+      "operator": "Ignite Energy Access",
       "status": "active",
-      "commissioned": "2022-03-15"
+      "commissioned": "2025-09-01"
     },
     {
       "id": "grid-002",
-      "name": "Kafue East Solar Hub",
-      "lat": -15.7733,
-      "lng": 28.1833,
-      "capacity_kw": 30,
-      "operator": "SunPower Zambia",
+      "name": "Lunga",
+      "lat": -14.30086,
+      "lng": 32.2137,
+      "capacity_kw": 50,
+      "operator": "Ignite Energy Access",
       "status": "active",
-      "commissioned": "2021-09-01"
+      "commissioned": "2025-03-01"
     },
     {
       "id": "grid-003",
-      "name": "Chongwe Valley Grid",
-      "lat": -15.3333,
-      "lng": 28.6833,
-      "capacity_kw": 20,
-      "operator": "Rural Energy Co",
+      "name": "Kasamba",
+      "lat": -14.060464,
+      "lng": 31.704271,
+      "capacity_kw": 50,
+      "operator": "Ignite Energy Access",
       "status": "active",
-      "commissioned": "2023-01-20"
+      "commissioned": "2025-04-01"
     },
     {
       "id": "grid-004",
-      "name": "Siavonga Lakeshore Grid",
-      "lat": -16.5333,
-      "lng": 28.7167,
-      "capacity_kw": 40,
-      "operator": "ZamSolar Ltd",
+      "name": "Lusinde",
+      "lat": -14.521081,
+      "lng": 31.175487,
+      "capacity_kw": 50,
+      "operator": "Ignite Energy Access",
       "status": "active",
-      "commissioned": "2022-07-11"
+      "commissioned": "2024-12-01"
     },
     {
       "id": "grid-005",
-      "name": "Kabwe Central Grid",
-      "lat": -14.4469,
-      "lng": 28.4464,
-      "capacity_kw": 60,
-      "operator": "SunPower Zambia",
+      "name": "Chataika",
+      "lat": -14.347107,
+      "lng": 31.682748,
+      "capacity_kw": 100,
+      "operator": "Ignite Energy Access",
       "status": "active",
-      "commissioned": "2020-11-30"
+      "commissioned": "2024-12-01"
+    },
+    {
+      "id": "grid-006",
+      "name": "Chinkombe",
+      "lat": -13.927,
+      "lng": 31.97866,
+      "capacity_kw": 100,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2025-09-01"
+    },
+    {
+      "id": "grid-007",
+      "name": "Kandongwa",
+      "lat": -14.612604,
+      "lng": 31.258714,
+      "capacity_kw": 100,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2024-12-01"
+    },
+    {
+      "id": "grid-008",
+      "name": "Kapachi",
+      "lat": -14.04771,
+      "lng": 32.49779,
+      "capacity_kw": 100,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2025-08-01"
+    },
+    {
+      "id": "grid-009",
+      "name": "Madzaela",
+      "lat": -13.96045,
+      "lng": 32.36419,
+      "capacity_kw": 50,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2025-07-01"
+    },
+    {
+      "id": "grid-010",
+      "name": "Chimwala",
+      "lat": -14.33446,
+      "lng": 32.11862,
+      "capacity_kw": 50,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2025-09-01"
+    },
+    {
+      "id": "grid-011",
+      "name": "Kalambana",
+      "lat": -14.264551,
+      "lng": 31.946211,
+      "capacity_kw": 100,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2025-03-01"
+    },
+    {
+      "id": "grid-012",
+      "name": "Kangombe",
+      "lat": -13.65896,
+      "lng": 32.29215,
+      "capacity_kw": 50,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2025-09-01"
+    },
+    {
+      "id": "grid-013",
+      "name": "Mtizwa",
+      "lat": -13.74569,
+      "lng": 32.52505,
+      "capacity_kw": 50,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2025-09-01"
+    },
+    {
+      "id": "grid-014",
+      "name": "Kanyanga",
+      "lat": -14.521081,
+      "lng": 31.175487,
+      "capacity_kw": 100,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2024-12-01"
+    },
+    {
+      "id": "grid-015",
+      "name": "Chidiwa",
+      "lat": -14.174118,
+      "lng": 31.677428,
+      "capacity_kw": 50,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2025-03-01"
+    },
+    {
+      "id": "grid-016",
+      "name": "Mwanika",
+      "lat": -13.95071,
+      "lng": 31.76374,
+      "capacity_kw": 50,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2025-09-01"
+    },
+    {
+      "id": "grid-017",
+      "name": "Mtore",
+      "lat": -14.368497,
+      "lng": 32.003128,
+      "capacity_kw": 50,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2025-04-01"
+    },
+    {
+      "id": "grid-018",
+      "name": "Mwana Nyimba",
+      "lat": -14.5316,
+      "lng": 31.234151,
+      "capacity_kw": 100,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2024-12-01"
+    },
+    {
+      "id": "grid-019",
+      "name": "Mung omba",
+      "lat": -14.109445,
+      "lng": 31.57523,
+      "capacity_kw": 50,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2025-04-01"
+    },
+    {
+      "id": "grid-020",
+      "name": "Chiteka",
+      "lat": -14.24144,
+      "lng": 32.44673,
+      "capacity_kw": 50,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2025-08-01"
+    },
+    {
+      "id": "grid-021",
+      "name": "Petulo",
+      "lat": -14.426631,
+      "lng": 31.725137,
+      "capacity_kw": 50,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2025-03-01"
+    },
+    {
+      "id": "grid-022",
+      "name": "Maila",
+      "lat": -13.99179,
+      "lng": 31.73811,
+      "capacity_kw": 100,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2025-09-01"
+    },
+    {
+      "id": "grid-023",
+      "name": "Manje",
+      "lat": null,
+      "lng": null,
+      "capacity_kw": 50,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2025-08-01"
+    },
+    {
+      "id": "grid-024",
+      "name": "Kumadzi",
+      "lat": -13.99261,
+      "lng": 32.50793,
+      "capacity_kw": 100,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2025-07-01"
+    },
+    {
+      "id": "grid-025",
+      "name": "Mntipa",
+      "lat": -14.28294,
+      "lng": 32.25448,
+      "capacity_kw": 50,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2025-09-01"
+    },
+    {
+      "id": "grid-026",
+      "name": "Luampande",
+      "lat": -14.232461,
+      "lng": 31.465173,
+      "capacity_kw": 50,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2025-05-01"
+    },
+    {
+      "id": "grid-027",
+      "name": "Kathumba Chindwale",
+      "lat": -14.302335,
+      "lng": 32.01888,
+      "capacity_kw": 50,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2025-09-01"
+    },
+    {
+      "id": "grid-028",
+      "name": "Kondwelani",
+      "lat": -14.386755,
+      "lng": 31.92914,
+      "capacity_kw": 100,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2025-02-01"
+    },
+    {
+      "id": "grid-029",
+      "name": "Kazembe Zingula",
+      "lat": -13.76372,
+      "lng": 32.37311,
+      "capacity_kw": 100,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2025-09-01"
+    },
+    {
+      "id": "grid-030",
+      "name": "Mphole",
+      "lat": -14.132852,
+      "lng": 31.641205,
+      "capacity_kw": 100,
+      "operator": "Ignite Energy Access",
+      "status": "active",
+      "commissioned": "2025-04-01"
     }
-  ],
+  ]
+,
   "customers": [
     {
       "id": "cust-001",

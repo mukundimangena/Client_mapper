@@ -53,10 +53,17 @@
       flex-direction: column;
       z-index: 500;
       box-shadow: 4px 0 24px rgba(0,0,0,0.35);
-      transition: transform 0.3s ease;
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1),
+                  min-width 0.3s cubic-bezier(0.4,0,0.2,1),
+                  width 0.3s cubic-bezier(0.4,0,0.2,1);
+      position: relative;
     }
 
-    #sidebar.collapsed { transform: translateX(calc(-1 * var(--sidebar-w))); }
+    #sidebar.collapsed {
+      transform: translateX(calc(-1 * var(--sidebar-w)));
+      min-width: 0;
+      width: 0;
+    }
 
     .sidebar-header {
       padding: 20px 18px 16px;
@@ -355,12 +362,25 @@
       border: 1px solid var(--border2);
       border-radius: 9px;
       cursor: pointer;
-      display: none;
+      display: flex;
       align-items: center;
       justify-content: center;
       box-shadow: var(--shadow);
       color: var(--text);
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
     }
+
+    #sidebarToggle:hover { background: var(--surface2); border-color: var(--accent); color: var(--accent); }
+
+    #sidebarToggle .toggle-arrow {
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Arrow points left (‹) when sidebar is open — click to close */
+    /* Arrow points right (›) when sidebar is closed — click to open */
+    #sidebarToggle.sidebar-open .toggle-arrow { transform: rotate(0deg); }
+    #sidebarToggle.sidebar-closed .toggle-arrow { transform: rotate(180deg); }
 
     /* Customer count badge */
     #mapBadge {
@@ -580,11 +600,9 @@
       font-weight: 700 !important;
     }
 
-    /* Responsive */
+    /* Responsive — on mobile the sidebar overlays the map */
     @media (max-width: 640px) {
       #sidebar { position: absolute; left: 0; top: 0; z-index: 700; }
-      #sidebarToggle { display: flex; }
-      #sidebar:not(.collapsed) ~ #map-wrap #sidebarToggle { left: calc(var(--sidebar-w) + 14px); }
     }
 
     /* Scrollbar */
@@ -657,6 +675,13 @@
       </div>
       <div class="toggle-row">
         <div class="toggle-label">
+          <span class="toggle-dot" style="background:rgba(245,158,11,0.4);border:2px dashed var(--grid-col);border-radius:50%;width:10px;height:10px;box-sizing:border-box;"></span>
+          5 km Coverage Zones
+        </div>
+        <label class="switch"><input type="checkbox" id="toggleRadii" checked><span class="slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-label">
           <span class="toggle-dot" style="background:var(--cust-col)"></span>
           Customers
         </div>
@@ -675,6 +700,12 @@
       <div class="legend-item">
         <div class="legend-icon" style="background:rgba(245,158,11,0.15);color:var(--grid-col)">⚡</div>
         Solar Mini-Grid
+      </div>
+      <div class="legend-item">
+        <div class="legend-icon" style="background:rgba(245,158,11,0.08);border:1.5px dashed var(--grid-col);border-radius:50%;">
+          <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="2,1.5"/></svg>
+        </div>
+        5 km Coverage Zone
       </div>
       <div class="legend-item">
         <div class="legend-icon" style="background:rgba(96,165,250,0.15);color:var(--cust-col)">👤</div>
@@ -698,8 +729,10 @@
 
   <!-- Map -->
   <div id="map-wrap">
-    <button id="sidebarToggle" title="Toggle Sidebar">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    <button id="sidebarToggle" class="sidebar-open" title="Toggle Sidebar">
+      <span class="toggle-arrow">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </span>
     </button>
     <div id="map"></div>
     <div id="mapBadge">
@@ -803,6 +836,7 @@ L.control.zoom({ position: 'bottomleft' }).addTo(map);
 // Layer Groups
 // ─────────────────────────────────────────────
 const gridLayer    = L.layerGroup().addTo(map);
+const radiusLayer  = L.layerGroup().addTo(map);
 const customerCluster = L.markerClusterGroup({
   spiderfyOnMaxZoom: true,
   showCoverageOnHover: false,
