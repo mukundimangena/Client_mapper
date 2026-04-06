@@ -182,7 +182,7 @@ window.SOLAR_DATA = {
     },
     {
       "id": "grid-019",
-      "name": "Mung omba",
+      "name": "Mung'omba",
       "lat": -14.109445,
       "lng": 31.57523,
       "capacity_kw": 50,
@@ -193,8 +193,8 @@ window.SOLAR_DATA = {
     {
       "id": "grid-020",
       "name": "Chateka",
-      "lat": -14.24144,
-      "lng": 32.44673,
+      "lat": -14.241271437992344,
+      "lng": 32.447071515162214,
       "capacity_kw": 50,
       "operator": "Ignite Energy Access",
       "status": "active",
@@ -533,7 +533,7 @@ window.SOLAR_DATA = {
   {
     "id": "cust-021",
     "name": "Abraham Banda",
-    "grid_id": "grid-020",
+    "grid_id": "grid-008",
     "machine": "Hammer Mill and Dehuller ",
     "phone": "+260 977115854",
     "lat": -14.0448778,
@@ -561,54 +561,9 @@ window.SOLAR_DATA = {
       "name": "Lusaka North Primary School",
       "type": "school",
       "grid_id": "grid-001",
-      "lat": -15.3840,
-      "lng": 28.3210,
+     "lat": -14.0448778,
+    "lng": 32.5015356,
       "description": "Government primary school powered by Grid 001. 320 pupils enrolled."
-    },
-    {
-      "id": "infra-002",
-      "name": "Kafue Rural Health Post",
-      "type": "clinic",
-      "grid_id": "grid-002",
-      "lat": -15.7800,
-      "lng": 28.1900,
-      "description": "Community health post serving ~2,500 residents. Has solar-powered refrigeration for vaccines."
-    },
-    {
-      "id": "infra-003",
-      "name": "Chongwe Community Borehole",
-      "type": "borehole",
-      "grid_id": "grid-003",
-      "lat": -15.3280,
-      "lng": 28.6800,
-      "description": "Solar-powered borehole providing clean water to 5 villages."
-    },
-    {
-      "id": "infra-004",
-      "name": "Siavonga Secondary School",
-      "type": "school",
-      "grid_id": "grid-004",
-      "lat": -16.5280,
-      "lng": 28.7100,
-      "description": "Secondary school with computer lab powered by mini-grid."
-    },
-    {
-      "id": "infra-005",
-      "name": "Kabwe Clinic",
-      "type": "clinic",
-      "grid_id": "grid-005",
-      "lat": -14.4420,
-      "lng": 28.4430,
-      "description": "Urban clinic with 24-hour power supply for maternity ward."
-    },
-    {
-      "id": "infra-006",
-      "name": "Kafue Market Borehole",
-      "type": "borehole",
-      "grid_id": "grid-002",
-      "lat": -15.7700,
-      "lng": 28.1780,
-      "description": "Market borehole serving local traders and households."
     }
   ]
 
