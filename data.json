@@ -1,4 +1,5 @@
-{"grids": [
+window.SOLAR_DATA = {
+  "grids": [
     {
       "id": "grid-001",
       "name": "Chimulambe",
@@ -181,7 +182,7 @@
     },
     {
       "id": "grid-019",
-      "name": "Mung omba",
+      "name": "Mung'omba",
       "lat": -14.109445,
       "lng": 31.57523,
       "capacity_kw": 50,
@@ -550,9 +551,92 @@
     "lng": 32.5015356,
     "image": null,
     "account_status": "active"
+  },{
+    "id": "cust-022",
+    "name": "Margaret Zulu",
+    "grid_id": "grid-016",
+    "machine": "Hammer Mill and Dehuller",
+    "phone": "+260 977115854",
+    "lat": -13.991710276966774,
+    "lng": 31.881524025088027,
+    "image": null,
+    "account_status": "active"
+  },
+  {
+    "id": "cust-023",
+    "name": "James Mbewe",
+    "grid_id": "grid-001",
+    "machine": "Oil Expeller",
+    "phone": "+260961260496",
+    "lat": -13.991710276966774,
+    "lng": 31.881524025088027,
+    "image": null,
+    "account_status": "active"
+  },{
+    "id": "cust-024",
+    "name": "James Mbewe",
+    "grid_id": "grid-001",
+    "machine": "Hammer Mill and Dehuller",
+    "phone": "+260961260496",
+    "lat": -13.745110,
+    "lng": 32.109726,
+    "image": null,
+    "account_status": "active"
+  },
+  {
+    "id": "cust-025",
+    "name": "Simon Phiri",
+    "grid_id": "grid-001",
+    "machine": "Hammer Mill and Dehuller",
+    "phone": "+260767658162",
+    "lat": -13.745110,
+    "lng": 32.109726,
+    "image": null,
+    "account_status": "active"
+  },
+  {
+    "id": "cust-026",
+    "name": "Patisio Phiri",
+    "grid_id": "grid-001",
+    "machine": "Oil Expeller",
+    "phone": "+260 977115854",
+    "lat": -13.745110,
+    "lng": 32.109726,
+    "image": null,
+    "account_status": "active"
+  },
+  {
+    "id": "cust-027",
+    "name": "Manjoro Phiri",
+    "grid_id": "grid-001",
+    "machine": "Hammer Mill and Dehuller",
+    "phone": "+260 960273110",
+    "lat": -13.745110,
+    "lng": 32.109726,
+    "image": null,
+    "account_status": "active" 
+  },
+  {
+    "id": "cust-028",
+    "name": "Liford Tembo",
+    "grid_id": "grid-007",
+    "machine": "Oil Expeller",
+    "phone": "+260 974164293",
+    "lat": -14.241193,
+    "lng": 31.319850,
+    "image": null,
+    "account_status": "active"
+  },{
+    "id": "cust-029",
+    "name": "Liford Tembo",
+    "grid_id": "grid-007",
+    "machine": "Large Irrigation System",
+    "phone": "+260 974164293",
+    "lat": -14.241193,
+    "lng": 31.319850,
+    "image": null,
+    "account_status": "active"
   }
-
-
   ],
   "infrastructure": [
     {
@@ -560,10 +644,9 @@
       "name": "Lusaka North Primary School",
       "type": "school",
       "grid_id": "grid-001",
-      "lat": -15.3840,
-      "lng": 28.3210,
+     "lat": -14.0448778,
+    "lng": 32.5015356,
       "description": "Government primary school powered by Grid 001. 320 pupils enrolled."
     }
   ]
-
-}
+};

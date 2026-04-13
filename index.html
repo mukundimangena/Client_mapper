@@ -4,461 +4,247 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CES CARES — Zambia</title>
-
   <link rel="icon" type="image/svg+xml" href="logo.svg" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #080c14;
-      --surface:   #0f1520;
-      --surface2:  #182030;
-      --surface3:  #1e2a3d;
-      --border:    rgba(255,255,255,0.06);
-      --border2:   rgba(255,255,255,0.11);
-      --text:      #e2e8f5;
-      --text2:     #b0bcd4;
-      --muted:     #6b7a99;
-      --accent:    #f59e0b;      /* amber — solar/grids */
-      --accent2:   #10d9a0;      /* teal — active */
-      --client:    #38bdf8;      /* sky blue — customers */
+      --bg:        #0e1117;
+      --surface:   #161b27;
+      --surface2:  #1e2535;
+      --border:    rgba(255,255,255,0.07);
+      --border2:   rgba(255,255,255,0.12);
+      --text:      #e8eaf0;
+      --muted:     #7a8499;
+      --accent:    #ffffff;
+      --accent2:   #34d399;
+      --danger:    #f87171;
       --grid-col:  #f59e0b;
-      --cust-col:  #38bdf8;
-      --infra-col: #c084fc;
-      --danger:    #fb7185;
-      --sidebar-w: 310px;
-      --radius:    12px;
-      --shadow:    0 12px 40px rgba(0,0,0,0.55);
+      --cust-col:  #60a5fa;
+      --infra-col: #a78bfa;
+      --mach-hammer:  #34d399;
+      --mach-oil:     #fb923c;
+      --mach-filter:  #f472b6;
+      --mach-irrig:   #38bdf8;
+      --mach-other:   #94a3b8;
+      --sidebar-w: 300px;
+      --radius:    10px;
+      --shadow:    0 8px 32px rgba(0,0,0,0.45);
     }
 
-    html, body { width: 100%; height: 100%; font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
-
-    /* ── Layout ── */
+    html, body { width: 100%; height: 100%; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
     #app { display: flex; width: 100%; height: 100%; }
 
     /* ── Sidebar ── */
     #sidebar {
-      width: var(--sidebar-w);
-      min-width: var(--sidebar-w);
-      height: 100%;
-      background: var(--surface);
+      width: var(--sidebar-w); min-width: var(--sidebar-w);
+      height: 100%; background: var(--surface);
       border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      z-index: 500;
-      box-shadow: 4px 0 32px rgba(0,0,0,0.4);
-      transition: width 0.32s cubic-bezier(0.4,0,0.2,1),
-                  min-width 0.32s cubic-bezier(0.4,0,0.2,1);
-      overflow: hidden;
-      flex-shrink: 0;
+      display: flex; flex-direction: column;
+      z-index: 500; box-shadow: 4px 0 24px rgba(0,0,0,0.35);
+      transition: width 0.3s cubic-bezier(0.4,0,0.2,1),
+                  min-width 0.3s cubic-bezier(0.4,0,0.2,1),
+                  transform 0.3s cubic-bezier(0.4,0,0.2,1);
+      overflow: hidden; flex-shrink: 0;
     }
-
     #sidebar.collapsed { width: 0; min-width: 0; }
 
     @media (max-width: 640px) {
       #sidebar {
-        position: absolute; left: 0; top: 0;
-        z-index: 700;
+        position: absolute; left: 0; top: 0; z-index: 700;
         width: var(--sidebar-w); min-width: var(--sidebar-w);
         transform: translateX(0);
-        transition: transform 0.32s cubic-bezier(0.4,0,0.2,1);
-        overflow-y: auto;
+        transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+        overflow: visible; overflow-y: auto;
       }
       #sidebar.collapsed { transform: translateX(calc(-1 * var(--sidebar-w))); width: var(--sidebar-w); min-width: var(--sidebar-w); }
       #sidebarOverlay { display: block; }
     }
 
-    /* Sidebar header */
-    .sidebar-header {
-      padding: 18px 16px 14px;
-      border-bottom: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(56,189,248,0.04) 0%, transparent 100%);
-    }
-
-    .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 2px; }
-
-    .logo-icon {
-      width: 36px; height: 36px;
-      border-radius: 9px;
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden;
-      flex-shrink: 0;
-      border: 1px solid rgba(56,189,248,0.2);
-    }
-
+    .sidebar-header { padding: 20px 18px 16px; border-bottom: 1px solid var(--border); }
+    .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+    .logo-icon { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
     .logo-text { font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.05em; color: var(--text); }
-    .logo-sub { font-size: 11px; color: var(--muted); letter-spacing: 0.02em; margin-top: 1px; }
+    .logo-sub { font-size: 11px; color: var(--muted); letter-spacing: 0.03em; margin-top: 1px; }
 
-    /* ── Stats row ── */
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      padding: 12px 14px;
+    /* View Mode Tabs */
+    .view-tabs {
+      display: flex; gap: 0;
+      padding: 10px 18px;
       border-bottom: 1px solid var(--border);
     }
-
-    .stat-card {
-      background: var(--surface2);
-      border-radius: 9px;
-      padding: 10px 6px;
-      text-align: center;
-      border: 1px solid var(--border);
-      position: relative;
-      overflow: hidden;
+    .view-tab {
+      flex: 1; padding: 7px 6px; font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.07em; text-align: center;
+      cursor: pointer; border: 1px solid var(--border2);
+      background: transparent; color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.2s;
     }
+    .view-tab:first-child { border-radius: 7px 0 0 7px; }
+    .view-tab:last-child { border-radius: 0 7px 7px 0; border-left: none; }
+    .view-tab.active { background: var(--grid-col); border-color: var(--grid-col); color: #0e1117; }
 
-    .stat-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-    }
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+    .stat-card { background: var(--surface2); border-radius: 8px; padding: 10px 8px; text-align: center; }
+    .stat-card .num { font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700; color: var(--text); line-height: 1; }
+    .stat-card .lbl { font-size: 10px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
 
-    .stat-card.sc-clients::before { background: var(--client); }
-    .stat-card.sc-grids::before  { background: var(--accent); }
-    .stat-card.sc-kw::before     { background: var(--accent2); }
-
-    .stat-card .num {
-      font-family: 'Space Mono', monospace;
-      font-size: 20px;
-      font-weight: 700;
-      line-height: 1;
-    }
-
-    .stat-card.sc-clients .num { color: var(--client); }
-    .stat-card.sc-grids .num   { color: var(--accent); }
-    .stat-card.sc-kw .num      { color: var(--accent2); }
-
-    .stat-card .lbl { font-size: 9px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.07em; font-weight: 500; }
-
-    /* Sidebar body */
-    .sidebar-body { flex: 1; overflow-y: auto; padding: 14px 14px 20px; }
-    .sidebar-body::-webkit-scrollbar { width: 3px; }
+    .sidebar-body { flex: 1; overflow-y: auto; padding: 16px 18px; }
+    .sidebar-body::-webkit-scrollbar { width: 4px; }
+    .sidebar-body::-webkit-scrollbar-track { background: transparent; }
     .sidebar-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
 
-    .section-label {
-      font-size: 10px; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 0.1em; color: var(--muted);
-      margin-bottom: 8px; margin-top: 18px;
-    }
+    .section-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; margin-top: 18px; }
     .section-label:first-child { margin-top: 0; }
 
-    /* Search */
     .search-wrap { position: relative; margin-bottom: 4px; }
     .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
-
-    #searchInput {
-      width: 100%; background: var(--surface2); border: 1px solid var(--border2);
-      border-radius: 9px; color: var(--text); font-family: 'Outfit', sans-serif;
-      font-size: 13px; padding: 9px 10px 9px 34px; outline: none; transition: border-color 0.2s;
-    }
-    #searchInput:focus { border-color: var(--client); }
+    #searchInput { width: 100%; background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 9px 10px 9px 34px; outline: none; transition: border-color 0.2s; }
+    #searchInput:focus { border-color: var(--accent); }
     #searchInput::placeholder { color: var(--muted); }
-
-    #searchResults {
-      display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0;
-      background: var(--surface2); border: 1px solid var(--border2); border-radius: 9px;
-      z-index: 600; overflow: hidden; box-shadow: var(--shadow);
-    }
+    #searchResults { display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; z-index: 600; overflow: hidden; box-shadow: var(--shadow); }
     #searchResults.open { display: block; }
+    .search-result-item { padding: 9px 12px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.15s; }
+    .search-result-item:hover { background: var(--border); }
+    .search-result-item .ri-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--grid-col); flex-shrink: 0; }
 
-    .search-result-item {
-      padding: 9px 12px; font-size: 13px; cursor: pointer;
-      display: flex; align-items: center; gap: 8px; transition: background 0.15s;
-    }
-    .search-result-item:hover { background: var(--surface3); }
-    .search-result-item .ri-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--client); flex-shrink: 0; }
-
-    /* Machine filter chips */
-    .machine-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-
-    .machine-chip {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 10px;
-      border-radius: 20px;
-      border: 1px solid var(--border2);
-      background: var(--surface2);
-      font-size: 11px;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all 0.18s;
-      white-space: nowrap;
-    }
-
-    .machine-chip:hover { border-color: var(--client); color: var(--client); }
-    .machine-chip.active { border-color: var(--client); background: rgba(56,189,248,0.12); color: var(--client); font-weight: 600; }
-
-    .machine-chip .chip-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-
-    /* Selects */
-    select {
-      width: 100%; background: var(--surface2); border: 1px solid var(--border2);
-      border-radius: 9px; color: var(--text); font-family: 'Outfit', sans-serif;
-      font-size: 13px; padding: 9px 32px 9px 10px; outline: none; cursor: pointer;
-      margin-bottom: 10px; transition: border-color 0.2s; appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7a99' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 10px center;
-    }
-    select:focus { border-color: var(--client); }
+    select { width: 100%; background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 9px 10px; outline: none; cursor: pointer; margin-bottom: 10px; transition: border-color 0.2s; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a8499' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+    select:focus { border-color: var(--accent); }
     select option { background: var(--surface2); }
 
-    /* Layer toggles */
-    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--border); }
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
     .toggle-row:last-child { border-bottom: none; }
-    .toggle-label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text2); }
+    .toggle-label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); }
     .toggle-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-
-    .switch { position: relative; width: 38px; height: 22px; flex-shrink: 0; }
+    .switch { position: relative; width: 36px; height: 20px; flex-shrink: 0; }
     .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; inset: 0; background: var(--surface3); border: 1px solid var(--border2); border-radius: 20px; cursor: pointer; transition: background 0.25s; }
-    .slider::before { content: ''; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--muted); border-radius: 50%; transition: transform 0.25s, background 0.25s; }
-    .switch input:checked + .slider { background: rgba(56,189,248,0.25); border-color: var(--client); }
-    .switch input:checked + .slider::before { transform: translateX(16px); background: var(--client); }
-    .switch.grid-switch input:checked + .slider { background: rgba(245,158,11,0.25); border-color: var(--accent); }
-    .switch.grid-switch input:checked + .slider::before { background: var(--accent); }
+    .slider { position: absolute; inset: 0; background: var(--surface2); border: 1px solid var(--border2); border-radius: 20px; cursor: pointer; transition: background 0.25s; }
+    .slider::before { content: ''; position: absolute; width: 14px; height: 14px; left: 2px; top: 2px; background: var(--muted); border-radius: 50%; transition: transform 0.25s, background 0.25s; }
+    .switch input:checked + .slider { background: var(--accent); border-color: var(--accent); }
+    .switch input:checked + .slider::before { transform: translateX(16px); background: #0e1117; }
 
-    /* Legend */
     .legend-item { display: flex; align-items: center; gap: 10px; padding: 5px 0; font-size: 12px; color: var(--muted); }
-    .legend-icon { width: 26px; height: 26px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    .legend-icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
 
-    /* Province list */
-    .province-list { display: flex; flex-direction: column; gap: 3px; }
-    .province-item {
-      display: flex; align-items: center; gap: 8px;
-      padding: 5px 8px; border-radius: 7px;
-      font-size: 12px; color: var(--text2);
-      cursor: pointer; transition: background 0.15s;
-    }
-    .province-item:hover { background: var(--surface2); }
-    .province-item .prov-swatch { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
-    .province-item .prov-count { margin-left: auto; font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); }
+    #activeFilters { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .filter-pill { display: flex; align-items: center; gap: 5px; background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); border-radius: 20px; padding: 3px 10px 3px 8px; font-size: 11px; color: var(--accent); }
+    .filter-pill button { background: none; border: none; color: var(--accent); cursor: pointer; padding: 0; font-size: 14px; line-height: 1; display: flex; }
+    #resetFilters { width: 100%; background: transparent; border: 1px solid var(--border2); border-radius: 8px; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 8px; cursor: pointer; margin-top: 12px; transition: all 0.2s; }
+    #resetFilters:hover { border-color: var(--accent); color: var(--accent); }
 
-    /* Reset button */
-    #resetFilters {
-      width: 100%; background: transparent; border: 1px solid var(--border2);
-      border-radius: 9px; color: var(--muted); font-family: 'Outfit', sans-serif;
-      font-size: 12px; padding: 8px; cursor: pointer; margin-top: 10px; transition: all 0.2s;
-    }
-    #resetFilters:hover { border-color: var(--client); color: var(--client); }
+    /* Machine legend items */
+    .machine-legend { display: flex; flex-direction: column; gap: 2px; margin-top: 4px; }
+    .mleg { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 12px; color: var(--muted); }
+    .mleg-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
 
     /* ── Map ── */
     #map-wrap { flex: 1; position: relative; }
     #map { width: 100%; height: 100%; }
+    #sidebarOverlay { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.5); z-index: 690; backdrop-filter: blur(2px); }
 
-    /* ── Overlay ── */
-    #sidebarOverlay { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.55); z-index: 690; backdrop-filter: blur(2px); }
-
-    /* Toggle button */
-    #sidebarToggle {
-      position: absolute; top: 14px; left: 14px; z-index: 710;
-      width: 42px; height: 42px; background: var(--surface); border: 1px solid var(--border2);
-      border-radius: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.5); color: var(--text); transition: all 0.2s;
-    }
-    #sidebarToggle:hover { background: var(--surface2); border-color: var(--client); color: var(--client); }
-    #sidebarToggle .toggle-arrow { display: flex; align-items: center; justify-content: center; transition: transform 0.32s cubic-bezier(0.4,0,0.2,1); }
+    #sidebarToggle { position: absolute; top: 14px; left: 14px; z-index: 710; width: 40px; height: 40px; background: var(--surface); border: 1px solid var(--border2); border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 12px rgba(0,0,0,0.5); color: var(--text); transition: background 0.2s, border-color 0.2s, color 0.2s; }
+    #sidebarToggle:hover, #sidebarToggle:focus-visible { background: var(--surface2); border-color: var(--accent); color: var(--accent); outline: none; }
+    #sidebarToggle .toggle-arrow { display: flex; align-items: center; justify-content: center; transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
     #sidebarToggle.sidebar-open  .toggle-arrow { transform: rotate(0deg); }
     #sidebarToggle.sidebar-closed .toggle-arrow { transform: rotate(180deg); }
 
-    /* Map badges */
-    #mapBadge {
-      position: absolute; bottom: 24px; right: 16px; z-index: 600;
-      background: var(--surface); border: 1px solid var(--border2); border-radius: 11px;
-      padding: 10px 14px; font-size: 12px; color: var(--muted); box-shadow: var(--shadow);
-      display: flex; align-items: center; gap: 6px;
-    }
-    #mapBadge strong { color: var(--client); font-size: 15px; font-family: 'Space Mono', monospace; }
-
-    /* ── Active filter pills ── */
-    #activeFilters { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-    .filter-pill {
-      display: flex; align-items: center; gap: 5px;
-      background: rgba(56,189,248,0.12); border: 1px solid rgba(56,189,248,0.3);
-      border-radius: 20px; padding: 3px 10px 3px 8px; font-size: 11px; color: var(--client);
-    }
-    .filter-pill button { background: none; border: none; color: var(--client); cursor: pointer; padding: 0; font-size: 14px; line-height: 1; display: flex; }
+    #mapBadge { position: absolute; bottom: 24px; right: 16px; z-index: 600; background: var(--surface); border: 1px solid var(--border2); border-radius: 10px; padding: 10px 14px; font-size: 12px; color: var(--muted); box-shadow: var(--shadow); display: flex; align-items: center; gap: 6px; }
+    #mapBadge strong { color: var(--text); font-size: 14px; }
 
     /* ── Modal ── */
-    #modalOverlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.7); z-index: 1000;
-      align-items: center; justify-content: center;
-      backdrop-filter: blur(5px); animation: fadeIn 0.2s ease;
-    }
+    #modalOverlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px); animation: fadeIn 0.2s ease; }
     #modalOverlay.open { display: flex; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes slideUp { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-    #modal {
-      background: var(--surface);
-      border: 1px solid var(--border2);
-      border-radius: 18px;
-      width: 460px;
-      max-width: calc(100vw - 32px);
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: 0 32px 80px rgba(0,0,0,0.7);
-      animation: slideUp 0.28s ease;
-    }
+    #modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 16px; width: 460px; max-width: calc(100vw - 32px); max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 64px rgba(0,0,0,0.6); animation: slideUp 0.25s ease; }
+    #modal::-webkit-scrollbar { width: 4px; }
+    #modal::-webkit-scrollbar-track { background: transparent; }
+    #modal::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
 
-    .modal-top-bar {
-      height: 4px;
-      background: linear-gradient(90deg, var(--client), #818cf8, var(--accent2));
-      border-radius: 18px 18px 0 0;
-    }
-
-    .modal-header {
-      padding: 20px 20px 0;
-      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
-    }
-
-    .modal-avatar {
-      width: 60px; height: 60px; border-radius: 14px;
-      background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(56,189,248,0.04));
-      border: 1px solid rgba(56,189,248,0.25);
-      display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; overflow: hidden;
-    }
-    .modal-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 14px; }
-
+    .modal-header { padding: 20px 20px 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .modal-avatar { width: 56px; height: 56px; border-radius: 12px; background: linear-gradient(135deg, rgba(96,165,250,0.2), rgba(96,165,250,0.05)); border: 1px solid rgba(96,165,250,0.3); display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; overflow: hidden; }
+    .modal-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
     .modal-title-wrap { flex: 1; }
-    .modal-name { font-size: 19px; font-weight: 600; color: var(--text); line-height: 1.2; }
-    .modal-id { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 3px; letter-spacing: 0.05em; }
-
-    .modal-status {
-      display: inline-flex; align-items: center; gap: 5px; margin-top: 6px;
-      font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700;
-      padding: 3px 9px; border-radius: 20px;
-    }
-    .modal-status.active { background: rgba(16,217,160,0.12); color: var(--accent2); }
-    .modal-status.inactive { background: rgba(251,113,133,0.12); color: var(--danger); }
+    .modal-name { font-size: 18px; font-weight: 600; color: var(--text); line-height: 1.2; }
+    .modal-status { display: inline-flex; align-items: center; gap: 5px; margin-top: 5px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+    .modal-status.active { background: rgba(52,211,153,0.15); color: var(--accent2); }
+    .modal-status.inactive { background: rgba(248,113,113,0.15); color: var(--danger); }
     .modal-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-
-    #modalClose {
-      background: var(--surface2); border: 1px solid var(--border); border-radius: 9px;
-      width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
-      cursor: pointer; color: var(--muted); font-size: 18px; flex-shrink: 0; transition: all 0.2s;
-    }
+    #modalClose { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--muted); font-size: 18px; flex-shrink: 0; transition: all 0.2s; }
     #modalClose:hover { color: var(--text); border-color: var(--border2); }
+    .modal-body { padding: 16px 20px 20px; }
 
-    .modal-body { padding: 16px 20px 22px; }
-
-    /* Site badge */
-    .site-badge {
-      display: flex; align-items: center; gap: 10px;
-      background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.04));
-      border: 1px solid rgba(245,158,11,0.25);
+    /* Machine section in modal */
+    .machine-section {
+      background: var(--surface2);
       border-radius: 10px;
-      padding: 10px 14px;
-      margin-bottom: 14px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      border-left: 3px solid var(--grid-col);
     }
-    .site-badge-icon { font-size: 18px; flex-shrink: 0; }
-    .site-badge-info {}
-    .site-badge-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); font-weight: 600; margin-bottom: 2px; }
-    .site-badge-name { font-size: 14px; font-weight: 600; color: var(--accent); }
-    .site-badge-meta { font-size: 11px; color: var(--muted); margin-top: 1px; }
-
-    /* Machine cards */
-    .machines-section { margin-bottom: 14px; }
-    .machines-header { font-size: 10px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); font-weight: 600; margin-bottom: 8px; }
-    .machines-grid { display: flex; flex-wrap: wrap; gap: 7px; }
-
-    .machine-card {
-      display: flex; align-items: center; gap: 8px;
-      background: var(--surface2); border: 1px solid var(--border2);
-      border-radius: 9px; padding: 9px 12px;
-      flex: 1; min-width: 140px;
+    .machine-section-title {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--muted); margin-bottom: 10px;
     }
-    .machine-card-icon { font-size: 18px; flex-shrink: 0; }
-    .machine-card-info {}
-    .machine-card-type { font-size: 12px; font-weight: 600; color: var(--text); }
-    .machine-card-cat { font-size: 10px; color: var(--muted); margin-top: 1px; }
+    .machine-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .machine-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: 500;
+      border: 1px solid;
+    }
+    .machine-chip.active-machine {
+      background: rgba(245,158,11,0.18);
+      border-color: rgba(245,158,11,0.5);
+      color: var(--grid-col);
+    }
+    .machine-chip.other-machine {
+      background: rgba(255,255,255,0.05);
+      border-color: var(--border2);
+      color: var(--muted);
+    }
+    .machine-chip-dot { width: 8px; height: 8px; border-radius: 50%; }
 
-    /* Info grid */
-    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-    .info-block { background: var(--surface2); border-radius: 9px; padding: 10px 12px; border: 1px solid var(--border); }
-    .info-block .key { font-size: 9px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .info-block { background: var(--surface2); border-radius: 8px; padding: 10px 12px; }
+    .info-block .key { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 4px; }
     .info-block .val { font-size: 13px; color: var(--text); font-weight: 500; }
     .info-block.full { grid-column: 1 / -1; }
 
-    .coord-row {
-      display: flex; align-items: center; gap: 8px;
-      background: var(--surface2); border-radius: 9px; padding: 9px 12px; margin-bottom: 10px;
-      font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted);
-      border: 1px solid var(--border);
-    }
-    .coord-row span { color: var(--text2); }
+    .coord-row { display: flex; align-items: center; gap: 8px; background: var(--surface2); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; font-family: 'Space Mono', monospace; font-size: 12px; color: var(--muted); }
+    .coord-row span { color: var(--text); }
+    .modal-image { width: 100%; border-radius: 10px; overflow: hidden; margin-top: 4px; }
+    .modal-image img { width: 100%; display: block; }
+    .img-placeholder { height: 100px; background: var(--surface2); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 12px; gap: 6px; border: 1px dashed var(--border2); }
 
-    .img-placeholder {
-      height: 90px; background: var(--surface2); border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--muted); font-size: 12px; gap: 6px;
-      border: 1px dashed var(--border2);
-    }
-
-    /* Grid breadcrumb (now shows active customer filter) */
-    #gridBreadcrumb {
-      display: none; position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
-      z-index: 600; background: var(--surface); border: 1px solid rgba(56,189,248,0.35);
-      border-radius: 11px; padding: 8px 14px 8px 12px;
-      box-shadow: var(--shadow); align-items: center; gap: 10px;
-      font-size: 13px; color: var(--text); white-space: nowrap; max-width: calc(100vw - 120px);
-    }
+    /* ── Active Grid Breadcrumb ── */
+    #gridBreadcrumb { display: none; position: absolute; top: 14px; left: 50%; transform: translateX(-50%); z-index: 600; background: var(--surface); border: 1px solid rgba(245,158,11,0.4); border-radius: 10px; padding: 8px 14px 8px 12px; box-shadow: var(--shadow); align-items: center; gap: 10px; font-size: 13px; color: var(--text); white-space: nowrap; max-width: calc(100vw - 120px); }
     #gridBreadcrumb.visible { display: flex; }
     #gridBreadcrumb .bc-icon { font-size: 16px; flex-shrink: 0; }
-    #gridBreadcrumb .bc-name { font-weight: 600; color: var(--client); overflow: hidden; text-overflow: ellipsis; }
+    #gridBreadcrumb .bc-name { font-weight: 600; color: var(--accent); overflow: hidden; text-overflow: ellipsis; }
     #gridBreadcrumb .bc-meta { font-size: 11px; color: var(--muted); flex-shrink: 0; }
+    #backToOverview { display: flex; align-items: center; gap: 5px; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); border-radius: 6px; color: var(--accent); font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600; padding: 4px 9px; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
+    #backToOverview:hover { background: rgba(245,158,11,0.22); }
 
-    #backToOverview {
-      display: flex; align-items: center; gap: 5px;
-      background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3);
-      border-radius: 7px; color: var(--client); font-family: 'Outfit', sans-serif;
-      font-size: 11px; font-weight: 600; padding: 4px 9px; cursor: pointer;
-      transition: background 0.2s; flex-shrink: 0;
-    }
-    #backToOverview:hover { background: rgba(56,189,248,0.2); }
-
-    /* Leaflet popups */
-    .leaflet-popup-content-wrapper {
-      background: var(--surface2) !important; border: 1px solid var(--border2) !important;
-      border-radius: 12px !important; box-shadow: var(--shadow) !important;
-      color: var(--text) !important; font-family: 'Outfit', sans-serif !important;
-    }
+    /* Leaflet overrides */
+    .leaflet-popup-content-wrapper { background: var(--surface2) !important; border: 1px solid var(--border2) !important; border-radius: 10px !important; box-shadow: var(--shadow) !important; color: var(--text) !important; font-family: 'DM Sans', sans-serif !important; }
     .leaflet-popup-tip { background: var(--surface2) !important; }
-    .leaflet-popup-content { margin: 13px 15px !important; font-size: 13px !important; }
+    .leaflet-popup-content { margin: 12px 14px !important; font-size: 13px !important; }
     .popup-title { font-weight: 600; margin-bottom: 4px; color: var(--text); }
-    .popup-sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
-    .popup-badge { display: inline-block; margin-top: 7px; font-size: 11px; padding: 2px 9px; border-radius: 12px; font-weight: 500; }
+    .popup-sub { color: var(--muted); font-size: 12px; }
+    .popup-badge { display: inline-block; margin-top: 6px; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 500; }
     .pb-grid { background: rgba(245,158,11,0.15); color: var(--accent); }
-    .pb-client { background: rgba(56,189,248,0.15); color: var(--client); }
-    .pb-infra { background: rgba(192,132,252,0.15); color: var(--infra-col); }
+    .pb-infra { background: rgba(167,139,250,0.15); color: var(--infra-col); }
 
-    /* Machine tags in popup */
-    .popup-machines { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
-    .popup-machine-tag { font-size: 10px; padding: 2px 7px; border-radius: 10px; background: rgba(56,189,248,0.1); color: var(--client); border: 1px solid rgba(56,189,248,0.2); }
-
-    /* Cluster styles */
-    .marker-cluster-small, .marker-cluster-medium, .marker-cluster-large { background-color: rgba(56,189,248,0.12) !important; }
-    .marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div {
-      background-color: rgba(56,189,248,0.65) !important; color: #fff !important;
-      font-family: 'Space Mono', monospace !important; font-size: 12px !important; font-weight: 700 !important;
-    }
-
-    #modal::-webkit-scrollbar { width: 4px; }
-    #modal::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+    .marker-cluster-small, .marker-cluster-medium, .marker-cluster-large { background-color: rgba(96,165,250,0.15) !important; }
+    .marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div { background-color: rgba(96,165,250,0.7) !important; color: #fff !important; font-family: 'Space Mono', monospace !important; font-size: 12px !important; font-weight: 700 !important; }
   </style>
 </head>
 <script src="data.js"></script>
@@ -470,113 +256,123 @@
     <div class="sidebar-header">
       <div class="logo">
         <div class="logo-icon">
-          <img src="logo.svg" alt="CES CARES Logo" style="width:36px;height:36px;" onerror="this.parentNode.innerHTML='⚡'">
+          <img src="logo.svg" alt="CES CARES Logo" style="width:40px;height:40px;">
         </div>
         <div>
           <div class="logo-text">CES CARES</div>
-          <div class="logo-sub">Productive Use · Zambia</div>
+          <div class="logo-sub">Customer Map · Zambia</div>
         </div>
       </div>
+    </div>
+
+    <!-- View Mode Tabs -->
+    <div class="view-tabs">
+      <button class="view-tab active" id="tabGrids" onclick="setViewMode('grids')">🗺️ Grids</button>
+      <button class="view-tab" id="tabMachines" onclick="setViewMode('machines')">⚙️ Machines</button>
     </div>
 
     <!-- Stats -->
     <div class="stats-row">
-      <div class="stat-card sc-clients">
-        <div class="num" id="statCustomers">—</div>
-        <div class="lbl">Clients</div>
-      </div>
-      <div class="stat-card sc-grids">
+      <div class="stat-card">
         <div class="num" id="statGrids">—</div>
-        <div class="lbl">Mini-Grids</div>
+        <div class="lbl">Grids</div>
       </div>
-      <div class="stat-card sc-kw">
-        <div class="num" id="statKw">—</div>
-        <div class="lbl">Total kW</div>
+      <div class="stat-card">
+        <div class="num" id="statCustomers">—</div>
+        <div class="lbl">Customers</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="statMachines">—</div>
+        <div class="lbl">Machines</div>
       </div>
     </div>
 
-    <div class="sidebar-body">
-
-      <!-- Client Search -->
-      <div class="section-label">Find Clients</div>
-      <div class="search-wrap">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="searchInput" placeholder="Search clients or grids…" autocomplete="off" />
-        <div id="searchResults"></div>
-      </div>
-
-      <!-- Machine Type Filter Chips -->
-      <div class="section-label" style="margin-top:18px">Filter by Machine</div>
-      <div class="machine-chips" id="machineChips">
-        <!-- populated by JS -->
-      </div>
-
-      <!-- Grid Filter -->
-      <div class="section-label">Filter by Grid</div>
-      <select id="filterGrid">
-        <option value="">All Solar Mini-Grids</option>
-      </select>
-
-      <div id="activeFilters"></div>
-      <button id="resetFilters">✕ Reset All Filters</button>
-
-      <!-- Layer Visibility -->
-      <div class="section-label" style="margin-top:20px">Map Layers</div>
-      <div class="toggle-row">
-        <div class="toggle-label">
-          <span class="toggle-dot" style="background:var(--client)"></span>
-          Clients
+    <div class="sidebar-body" id="sidebarBody">
+      <!-- Grids view panel -->
+      <div id="panelGrids">
+        <div class="section-label">Search Grids</div>
+        <div class="search-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" placeholder="Search mini-grids…" autocomplete="off" />
+          <div id="searchResults"></div>
         </div>
-        <label class="switch"><input type="checkbox" id="toggleCustomers" checked><span class="slider"></span></label>
-      </div>
-      <div class="toggle-row">
-        <div class="toggle-label">
-          <span class="toggle-dot" style="background:var(--grid-col)"></span>
-          Solar Mini-Grids
+
+        <div class="section-label" style="margin-top:18px">Filter Customers</div>
+        <select id="filterGrid"><option value="">All Solar Grids</option></select>
+        <select id="filterMachine"><option value="">All Machine Types</option></select>
+        <div id="activeFilters"></div>
+        <button id="resetFilters">✕ Reset Filters</button>
+
+        <div class="section-label">Layers</div>
+        <div class="toggle-row">
+          <div class="toggle-label"><span class="toggle-dot" style="background:var(--grid-col)"></span>Solar Mini-Grids</div>
+          <label class="switch"><input type="checkbox" id="toggleGrids" checked><span class="slider"></span></label>
         </div>
-        <label class="switch grid-switch"><input type="checkbox" id="toggleGrids"><span class="slider"></span></label>
-      </div>
-      <div class="toggle-row">
-        <div class="toggle-label">
-          <span class="toggle-dot" style="background:rgba(245,158,11,0.35);border:1.5px dashed var(--grid-col);border-radius:50%;width:10px;height:10px;box-sizing:border-box;"></span>
-          5 km Coverage Zones
+        <div class="toggle-row">
+          <div class="toggle-label">
+            <span class="toggle-dot" style="background:rgba(245,158,11,0.4);border:2px dashed var(--grid-col);border-radius:50%;width:10px;height:10px;box-sizing:border-box;"></span>
+            5 km Coverage Zones
+          </div>
+          <label class="switch"><input type="checkbox" id="toggleRadii" checked><span class="slider"></span></label>
         </div>
-        <label class="switch grid-switch"><input type="checkbox" id="toggleRadii"><span class="slider"></span></label>
-      </div>
-      <div class="toggle-row">
-        <div class="toggle-label">
-          <span class="toggle-dot" style="background:var(--infra-col)"></span>
-          Infrastructure
+        <div class="toggle-row">
+          <div class="toggle-label"><span class="toggle-dot" style="background:var(--cust-col)"></span>Customers</div>
+          <label class="switch"><input type="checkbox" id="toggleCustomers" checked><span class="slider"></span></label>
         </div>
-        <label class="switch"><input type="checkbox" id="toggleInfra"><span class="slider"></span></label>
-      </div>
-      <div class="toggle-row">
-        <div class="toggle-label">
-          <span class="toggle-dot" style="background:rgba(99,132,252,0.6);border:1px solid rgba(99,132,252,0.8)"></span>
-          Province Boundaries
+        <div class="toggle-row">
+          <div class="toggle-label"><span class="toggle-dot" style="background:var(--infra-col)"></span>Infrastructure</div>
+          <label class="switch"><input type="checkbox" id="toggleInfra" checked><span class="slider"></span></label>
         </div>
-        <label class="switch"><input type="checkbox" id="toggleProvinces" checked><span class="slider"></span></label>
+
+        <div class="section-label">Legend</div>
+        <div class="legend-item">
+          <div class="legend-icon" style="background:rgba(245,158,11,0.15);color:var(--grid-col)">⚡</div>
+          Solar Mini-Grid <span style="font-size:10px;color:var(--muted);margin-left:4px">click to explore</span>
+        </div>
+        <div class="legend-item" style="opacity:0.5">
+          <div class="legend-icon" style="background:rgba(96,165,250,0.15);color:var(--cust-col)">👤</div>
+          Customer <span style="font-size:10px;color:var(--muted);margin-left:4px">visible on grid select</span>
+        </div>
+        <div class="legend-item" style="opacity:0.5">
+          <div class="legend-icon" style="background:rgba(167,139,250,0.15);color:var(--infra-col)">🏫</div>School
+        </div>
+        <div class="legend-item" style="opacity:0.5">
+          <div class="legend-icon" style="background:rgba(167,139,250,0.15);color:var(--infra-col)">🏥</div>Clinic
+        </div>
+        <div class="legend-item" style="opacity:0.5">
+          <div class="legend-icon" style="background:rgba(167,139,250,0.15);color:var(--infra-col)">💧</div>Borehole
+        </div>
       </div>
 
-      <!-- Provinces Quick Nav -->
-      <div class="section-label" style="margin-top:20px">Provinces</div>
-      <div class="province-list" id="provinceList">
-        <!-- populated by JS -->
-      </div>
+      <!-- Machines view panel -->
+      <div id="panelMachines" style="display:none">
+        <div class="section-label">Filter by Machine Type</div>
+        <select id="filterMachineType"><option value="">All Machine Types</option></select>
+        <select id="filterMachineGrid"><option value="">All Solar Grids</option></select>
+        <button id="resetMachineFilters">✕ Reset Filters</button>
 
-      <!-- Legend -->
-      <div class="section-label" style="margin-top:20px">Legend</div>
-      <div class="legend-item">
-        <div class="legend-icon" style="background:rgba(56,189,248,0.15);color:var(--client)">🧑‍🌾</div>
-        Client (click for details)
-      </div>
-      <div class="legend-item">
-        <div class="legend-icon" style="background:rgba(245,158,11,0.15);color:var(--accent)">⚡</div>
-        Solar Mini-Grid
-      </div>
-      <div class="legend-item">
-        <div class="legend-icon" style="background:rgba(192,132,252,0.15);color:var(--infra-col)">🏫</div>
-        Infrastructure
+        <div class="section-label" style="margin-top:18px">Machine Types</div>
+        <div class="machine-legend">
+          <div class="mleg"><div class="mleg-dot" style="background:var(--mach-hammer)"></div>Hammer Mill</div>
+          <div class="mleg"><div class="mleg-dot" style="background:var(--mach-oil)"></div>Oil Expeller</div>
+          <div class="mleg"><div class="mleg-dot" style="background:var(--mach-filter)"></div>Oil Filter</div>
+          <div class="mleg"><div class="mleg-dot" style="background:var(--mach-irrig)"></div>Irrigation System</div>
+          <div class="mleg"><div class="mleg-dot" style="background:var(--mach-other)"></div>Other / Dehuller</div>
+        </div>
+
+        <div class="section-label" style="margin-top:18px">Layers</div>
+        <div class="toggle-row">
+          <div class="toggle-label"><span class="toggle-dot" style="background:var(--grid-col)"></span>Solar Mini-Grids</div>
+          <label class="switch"><input type="checkbox" id="toggleGridsMach" checked><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-label"><span class="toggle-dot" style="background:rgba(245,158,11,0.4);border:2px dashed var(--grid-col);border-radius:50%;width:10px;height:10px;box-sizing:border-box;"></span>5 km Coverage Zones</div>
+          <label class="switch"><input type="checkbox" id="toggleRadiiMach" checked><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-label"><span class="toggle-dot" style="background:#94a3b8)"></span>Machine Markers</div>
+          <label class="switch"><input type="checkbox" id="toggleMachines" checked><span class="slider"></span></label>
+        </div>
       </div>
     </div>
   </aside>
@@ -590,118 +386,165 @@
       </span>
     </button>
     <div id="map"></div>
-
-    <!-- Breadcrumb / active filter bar -->
     <div id="gridBreadcrumb">
-      <span class="bc-icon">🧑‍🌾</span>
+      <span class="bc-icon">⚡</span>
       <span class="bc-name" id="bcName">—</span>
       <span class="bc-meta" id="bcMeta"></span>
       <button id="backToOverview">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-        All Clients
+        Overview
       </button>
     </div>
-
     <div id="mapBadge">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
-      <strong id="visibleCount">0</strong>&nbsp;<span style="color:var(--muted)">clients visible</span>
+      <span id="badgeLabel">Showing</span> <strong id="visibleCount">0</strong>&nbsp;<span id="badgeUnit">customers</span>
     </div>
   </div>
 </div>
 
-<!-- ── Modal ── -->
+<!-- Modal -->
 <div id="modalOverlay">
   <div id="modal">
-    <div class="modal-top-bar"></div>
     <div class="modal-header">
-      <div class="modal-avatar" id="modalAvatar">🧑‍🌾</div>
+      <div class="modal-avatar" id="modalAvatar">👤</div>
       <div class="modal-title-wrap">
         <div class="modal-name" id="modalName">—</div>
-        <div class="modal-id" id="modalId">—</div>
         <div class="modal-status active" id="modalStatus">active</div>
       </div>
       <button id="modalClose">✕</button>
     </div>
     <div class="modal-body">
-
-      <!-- Site badge -->
-      <div class="site-badge" id="modalSiteBadge">
-        <div class="site-badge-icon">⚡</div>
-        <div class="site-badge-info">
-          <div class="site-badge-label">Solar Mini-Grid Site</div>
-          <div class="site-badge-name" id="modalGridName">—</div>
-          <div class="site-badge-meta" id="modalGridMeta">—</div>
+      <!-- Machine highlight section (shown in machine view) -->
+      <div id="modalMachineSection" style="display:none">
+        <div class="machine-section">
+          <div class="machine-section-title">📍 Viewing Machine</div>
+          <div class="machine-chips" id="modalMachineChips"></div>
         </div>
       </div>
 
-      <!-- Machines -->
-      <div class="machines-section">
-        <div class="machines-header">⚙️ Machines Operated</div>
-        <div class="machines-grid" id="modalMachines">—</div>
-      </div>
-
-      <!-- Info blocks -->
       <div class="info-grid">
+        <div class="info-block">
+          <div class="key">Solar Grid</div>
+          <div class="val" id="modalGrid">—</div>
+        </div>
+        <div class="info-block">
+          <div class="key">Machine Type</div>
+          <div class="val" id="modalMachine">—</div>
+        </div>
         <div class="info-block full">
           <div class="key">Phone Number</div>
           <div class="val" id="modalPhone">—</div>
         </div>
       </div>
-
       <div class="coord-row">
         📍 <span id="modalCoords">—</span>
       </div>
-
       <div id="modalImageWrap">
         <div class="img-placeholder">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          No image on file
+          No image available
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Leaflet -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
 <script>
-// ─────────────────────────────────────────────────────────────────────────────
-// Machine metadata
-// ─────────────────────────────────────────────────────────────────────────────
-const MACHINE_META = {
-  'Hammer Mill':         { icon: '🔨', cat: 'Grain Processing' },
-  'Dehuller':            { icon: '🌾', cat: 'Grain Processing' },
-  'Oil Expeller':        { icon: '🫙', cat: 'Oil Processing' },
-  'Oil Filter':          { icon: '🔬', cat: 'Oil Processing' },
-  'Irrigation':          { icon: '💧', cat: 'Irrigation' },
+// ─────────────────────────────────────────────
+// Machine type classification
+// ─────────────────────────────────────────────
+const MACHINE_TYPES = {
+  'Hammer Mill':              { color: '#34d399', emoji: '🔨', label: 'Hammer Mill' },
+  'Dehuller':                 { color: '#94a3b8', emoji: '⚙️', label: 'Dehuller' },
+  'Hammer Mill and Dehuller': { color: '#34d399', emoji: '🔨', label: 'Hammer Mill & Dehuller' },
+  'Oil Expeller':             { color: '#fb923c', emoji: '🛢️', label: 'Oil Expeller' },
+  'Oil Filter':               { color: '#f472b6', emoji: '🔬', label: 'Oil Filter' },
+  'Oil Filter and Oil Expeller': { color: '#f472b6', emoji: '🔬', label: 'Oil Filter & Expeller' },
+  'Large Irrigation System':  { color: '#38bdf8', emoji: '💧', label: 'Irrigation System' },
+  'Irrigation System':        { color: '#38bdf8', emoji: '💧', label: 'Irrigation System' },
 };
 
-function getMachineMeta(name) {
-  for (const key of Object.keys(MACHINE_META)) {
-    if (name && name.toLowerCase().includes(key.toLowerCase())) {
-      return { name: key, ...MACHINE_META[key] };
-    }
+function getMachineInfo(machineName) {
+  const trimmed = (machineName || '').trim();
+  if (MACHINE_TYPES[trimmed]) return MACHINE_TYPES[trimmed];
+  // fuzzy match
+  for (const [key, val] of Object.entries(MACHINE_TYPES)) {
+    if (trimmed.toLowerCase().includes(key.toLowerCase())) return val;
   }
-  return { name, icon: '⚙️', cat: 'Equipment' };
+  return { color: '#94a3b8', emoji: '⚙️', label: trimmed || 'Unknown' };
 }
 
-// Parse a machine string that might have multiple machines (e.g. "Hammer Mill and Dehuller")
-function parseMachines(machineStr) {
-  if (!machineStr) return [];
-  // Split on 'and', '&', ',', '/'
-  const raw = machineStr.split(/\s+and\s+|&|,|\//i);
-  return raw.map(s => s.trim()).filter(Boolean).map(s => getMachineMeta(s));
+// ─────────────────────────────────────────────
+// Split compound machines into individual entries
+// Returns array of { customer, machineName, lat, lng, offsetIndex }
+// ─────────────────────────────────────────────
+const COMPOUND_SPLIT = {
+  'Hammer Mill and Dehuller': ['Hammer Mill', 'Dehuller'],
+  'Oil Filter and Oil Expeller': ['Oil Filter', 'Oil Expeller'],
+};
+
+// 250m offsets in degrees (~0.00225° lat per 250m)
+const OFFSETS_250M = [
+  { dlat: 0,        dlng: 0        },  // machine 0: original position
+  { dlat: 0.00225,  dlng: 0        },  // machine 1: ~250m north
+  { dlat: 0,        dlng: 0.00280  },  // machine 2: ~250m east
+  { dlat: -0.00225, dlng: 0        },  // machine 3: ~250m south
+  { dlat: 0,        dlng: -0.00280 },  // machine 4: ~250m west
+];
+
+function expandMachines(customers) {
+  const result = [];
+  customers.forEach(cust => {
+    const machineTrimmed = (cust.machine || '').trim();
+    const parts = COMPOUND_SPLIT[machineTrimmed];
+    if (parts) {
+      parts.forEach((part, i) => {
+        const off = OFFSETS_250M[i] || OFFSETS_250M[0];
+        result.push({
+          customer: cust,
+          machineName: part,
+          lat: cust.lat + off.dlat,
+          lng: cust.lng + off.dlng,
+          isCompound: true,
+          compoundOriginal: machineTrimmed,
+        });
+      });
+    } else {
+      result.push({
+        customer: cust,
+        machineName: machineTrimmed,
+        lat: cust.lat,
+        lng: cust.lng,
+        isCompound: false,
+        compoundOriginal: null,
+      });
+    }
+  });
+  return result;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Icons
-// ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// Custom Icons
+// ─────────────────────────────────────────────
 function makeIcon(emoji, bg, border, size = 36) {
   return L.divIcon({
     className: '',
-    html: `<div style="width:${size}px;height:${size}px;background:${bg};border:2px solid ${border};border-radius:${Math.round(size*0.28)}px;display:flex;align-items:center;justify-content:center;font-size:${Math.round(size*0.5)}px;box-shadow:0 4px 14px rgba(0,0,0,0.45);">${emoji}</div>`,
+    html: `<div style="width:${size}px;height:${size}px;background:${bg};border:2px solid ${border};border-radius:${size*0.28}px;display:flex;align-items:center;justify-content:center;font-size:${size*0.5}px;box-shadow:0 4px 12px rgba(0,0,0,0.4);">${emoji}</div>`,
+    iconSize: [size, size],
+    iconAnchor: [size/2, size/2],
+    popupAnchor: [0, -(size/2)-4]
+  });
+}
+
+function makeMachineIcon(machineInfo, size = 32) {
+  const col = machineInfo.color;
+  const bg  = col + '33'; // ~20% alpha
+  return L.divIcon({
+    className: '',
+    html: `<div style="width:${size}px;height:${size}px;background:${bg};border:2px solid ${col};border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:${size*0.48}px;box-shadow:0 3px 10px rgba(0,0,0,0.5);">${machineInfo.emoji}</div>`,
     iconSize: [size, size],
     iconAnchor: [size/2, size/2],
     popupAnchor: [0, -(size/2)-4]
@@ -710,322 +553,305 @@ function makeIcon(emoji, bg, border, size = 36) {
 
 const ICONS = {
   grid:     makeIcon('⚡', 'rgba(245,158,11,0.2)', '#f59e0b', 40),
-  customer: makeIcon('🧑‍🌾', 'rgba(56,189,248,0.2)', '#38bdf8', 34),
-  school:   makeIcon('🏫', 'rgba(192,132,252,0.2)', '#c084fc', 34),
-  clinic:   makeIcon('🏥', 'rgba(192,132,252,0.2)', '#c084fc', 34),
-  borehole: makeIcon('💧', 'rgba(192,132,252,0.2)', '#c084fc', 34),
+  customer: makeIcon('👤', 'rgba(96,165,250,0.2)', '#60a5fa', 34),
+  school:   makeIcon('🏫', 'rgba(167,139,250,0.2)', '#a78bfa', 34),
+  clinic:   makeIcon('🏥', 'rgba(167,139,250,0.2)', '#a78bfa', 34),
+  borehole: makeIcon('💧', 'rgba(167,139,250,0.2)', '#a78bfa', 34),
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Zambia Province GeoJSON (simplified outlines)
-// ─────────────────────────────────────────────────────────────────────────────
-const ZAMBIA_PROVINCES = {
-  "type": "FeatureCollection",
-  "features": [
-    { "type": "Feature", "properties": { "name": "Lusaka", "color": "#3b82f6" },
-      "geometry": { "type": "Polygon", "coordinates": [[[27.5,-14.4],[29.0,-14.4],[29.0,-15.9],[27.5,-15.9],[27.5,-14.4]]] } },
-    { "type": "Feature", "properties": { "name": "Copperbelt", "color": "#8b5cf6" },
-      "geometry": { "type": "Polygon", "coordinates": [[[26.0,-11.8],[29.5,-11.8],[29.5,-14.0],[26.0,-14.0],[26.0,-11.8]]] } },
-    { "type": "Feature", "properties": { "name": "Northern", "color": "#06b6d4" },
-      "geometry": { "type": "Polygon", "coordinates": [[[28.5,-8.0],[32.8,-8.0],[32.8,-12.5],[28.5,-12.5],[28.5,-8.0]]] } },
-    { "type": "Feature", "properties": { "name": "Luapula", "color": "#10b981" },
-      "geometry": { "type": "Polygon", "coordinates": [[[28.0,-8.2],[29.8,-8.2],[29.8,-12.2],[28.0,-12.2],[28.0,-8.2]]] } },
-    { "type": "Feature", "properties": { "name": "Eastern", "color": "#f59e0b" },
-      "geometry": { "type": "Polygon", "coordinates": [[[31.5,-11.5],[33.8,-11.5],[33.8,-15.5],[31.5,-15.5],[31.5,-11.5]]] } },
-    { "type": "Feature", "properties": { "name": "Central", "color": "#ec4899" },
-      "geometry": { "type": "Polygon", "coordinates": [[[26.5,-12.5],[31.5,-12.5],[31.5,-16.0],[26.5,-16.0],[26.5,-12.5]]] } },
-    { "type": "Feature", "properties": { "name": "Southern", "color": "#f97316" },
-      "geometry": { "type": "Polygon", "coordinates": [[[24.5,-15.5],[29.5,-15.5],[29.5,-18.1],[24.5,-18.1],[24.5,-15.5]]] } },
-    { "type": "Feature", "properties": { "name": "Western", "color": "#84cc16" },
-      "geometry": { "type": "Polygon", "coordinates": [[[21.8,-13.0],[26.5,-13.0],[26.5,-18.1],[21.8,-18.1],[21.8,-13.0]]] } },
-    { "type": "Feature", "properties": { "name": "North-Western", "color": "#14b8a6" },
-      "geometry": { "type": "Polygon", "coordinates": [[[21.8,-10.5],[26.5,-10.5],[26.5,-14.0],[21.8,-14.0],[21.8,-10.5]]] } },
-    { "type": "Feature", "properties": { "name": "Muchinga", "color": "#a855f7" },
-      "geometry": { "type": "Polygon", "coordinates": [[[29.5,-9.0],[33.5,-9.0],[33.5,-12.5],[29.5,-12.5],[29.5,-9.0]]] } },
-  ]
-};
-
-const PROVINCE_COLORS = {};
-ZAMBIA_PROVINCES.features.forEach(f => { PROVINCE_COLORS[f.properties.name] = f.properties.color; });
-
-// ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Map Init
-// ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 const map = L.map('map', { center: [-13.5, 28.5], zoom: 7, zoomControl: false });
-
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
   maxZoom: 19
 }).addTo(map);
-
 L.control.zoom({ position: 'bottomleft' }).addTo(map);
 
-// ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Layer Groups
-// ─────────────────────────────────────────────────────────────────────────────
-const provinceLayer   = L.layerGroup().addTo(map);
-const gridLayer       = L.layerGroup();          // OFF by default
-const radiusLayer     = L.layerGroup();          // OFF by default
-const infraLayer      = L.layerGroup().addTo(map);
-const customerCluster = L.markerClusterGroup({
-  spiderfyOnMaxZoom: true,
-  showCoverageOnHover: false,
-  maxClusterRadius: 55,
-}).addTo(map);  // ON by default — clients first!
+// ─────────────────────────────────────────────
+const gridLayer        = L.layerGroup().addTo(map);
+const radiusLayer      = L.layerGroup().addTo(map);
+const customerCluster  = L.markerClusterGroup({ spiderfyOnMaxZoom: true, showCoverageOnHover: false, maxClusterRadius: 60 });
+const infraLayer       = L.layerGroup();
+const machineCluster   = L.markerClusterGroup({ spiderfyOnMaxZoom: true, showCoverageOnHover: false, maxClusterRadius: 50 });
 
-// ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // State
-// ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 let allData             = null;
+let expandedMachines    = [];
 let activeFilterGrid    = '';
 let activeFilterMachine = '';
-let activeGridId        = null;
 let allCustomerMarkers  = [];
+let activeGridId        = null;
+let viewMode            = 'grids'; // 'grids' | 'machines'
+let machineFilterType   = '';
+let machineFilterGrid   = '';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Provinces
-// ─────────────────────────────────────────────────────────────────────────────
-function renderProvinces() {
-  provinceLayer.clearLayers();
-  L.geoJSON(ZAMBIA_PROVINCES, {
-    style: function(feature) {
-      return {
-        fillColor: feature.properties.color,
-        weight: 1.5,
-        opacity: 0.6,
-        color: feature.properties.color,
-        fillOpacity: 0.12,
-        dashArray: '4 3',
-      };
-    },
-    onEachFeature: function(feature, layer) {
-      const name = feature.properties.name;
-      layer.bindTooltip(name, {
-        permanent: false,
-        direction: 'center',
-        className: 'province-tooltip',
-        sticky: true,
-      });
-      layer.on('click', function() {
-        map.fitBounds(layer.getBounds(), { padding: [40, 40] });
-      });
-    }
-  }).addTo(provinceLayer);
+// ─────────────────────────────────────────────
+// View Mode Toggle
+// ─────────────────────────────────────────────
+function setViewMode(mode) {
+  viewMode = mode;
+  document.getElementById('tabGrids').classList.toggle('active', mode === 'grids');
+  document.getElementById('tabMachines').classList.toggle('active', mode === 'machines');
+  document.getElementById('panelGrids').style.display    = mode === 'grids'    ? '' : 'none';
+  document.getElementById('panelMachines').style.display = mode === 'machines' ? '' : 'none';
+
+  if (mode === 'grids') {
+    // Remove machine layer, restore grids view
+    if (map.hasLayer(machineCluster)) map.removeLayer(machineCluster);
+    if (!map.hasLayer(gridLayer))   map.addLayer(gridLayer);
+    if (!map.hasLayer(radiusLayer)) map.addLayer(radiusLayer);
+    document.getElementById('badgeUnit').textContent = 'customers';
+    // deactivate any active grid
+    deactivateGrid();
+    document.getElementById('gridBreadcrumb').classList.remove('visible');
+  } else {
+    // Machines view — deactivate grid, show all machine markers
+    deactivateGrid();
+    document.getElementById('gridBreadcrumb').classList.remove('visible');
+    if (!map.hasLayer(gridLayer))   map.addLayer(gridLayer);
+    if (!map.hasLayer(radiusLayer)) map.addLayer(radiusLayer);
+    renderMachineMarkers();
+    document.getElementById('badgeUnit').textContent = 'machines';
+    document.getElementById('badgeLabel').textContent = 'Showing';
+  }
 }
 
-function buildProvinceList(data) {
-  const list = document.getElementById('provinceList');
-  list.innerHTML = '';
-  ZAMBIA_PROVINCES.features.forEach(f => {
-    const name = f.properties.name;
-    const color = f.properties.color;
-    // approximate grid count in this province (use bounding box)
-    const bounds = f.geometry.coordinates[0];
-    const lats = bounds.map(p=>p[1]), lngs = bounds.map(p=>p[0]);
-    const minLat = Math.min(...lats), maxLat = Math.max(...lats);
-    const minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
-    const gridCount = data.grids.filter(g =>
-      g.lat >= minLat && g.lat <= maxLat && g.lng >= minLng && g.lng <= maxLng
-    ).length;
+// ─────────────────────────────────────────────
+// Render machine markers (Machines view)
+// ─────────────────────────────────────────────
+function renderMachineMarkers() {
+  machineCluster.clearLayers();
+  if (!map.hasLayer(machineCluster)) map.addLayer(machineCluster);
 
-    const div = document.createElement('div');
-    div.className = 'province-item';
-    div.innerHTML = `<div class="prov-swatch" style="background:${color}"></div>${name}<span class="prov-count">${gridCount > 0 ? gridCount + ' grids' : ''}</span>`;
-    div.addEventListener('click', () => {
-      map.fitBounds([[minLat,minLng],[maxLat,maxLng]], { padding: [40,40] });
-    });
-    list.appendChild(div);
-  });
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Customer rendering (default view — all customers)
-// ─────────────────────────────────────────────────────────────────────────────
-function renderCustomers(data) {
-  customerCluster.clearLayers();
-  allCustomerMarkers = [];
-  const gridMap = {};
-  data.grids.forEach(g => { gridMap[g.id] = g; });
-
-  const filtered = data.customers.filter(c => {
-    if (activeFilterGrid && c.grid_id !== activeFilterGrid) return false;
-    if (activeFilterMachine && !c.machine.toLowerCase().includes(activeFilterMachine.toLowerCase())) return false;
+  const filtered = expandedMachines.filter(em => {
+    if (machineFilterType && em.machineName !== machineFilterType) return false;
+    if (machineFilterGrid && em.customer.grid_id !== machineFilterGrid) return false;
     return true;
   });
 
-  filtered.forEach(c => {
-    const grid = gridMap[c.grid_id];
-    const machines = parseMachines(c.machine);
-    const m = L.marker([c.lat, c.lng], { icon: ICONS.customer });
+  const gridMap = {};
+  allData.grids.forEach(g => { gridMap[g.id] = g; });
 
-    const machineTags = machines.map(mc =>
-      `<span class="popup-machine-tag">${mc.icon} ${mc.name}</span>`
-    ).join('');
-
-    m.bindPopup(`
-      <div class="popup-title">🧑‍🌾 ${c.name}</div>
-      <div class="popup-sub">📍 ${grid ? grid.name : 'Unknown site'} · ${grid ? grid.capacity_kw + ' kW' : ''}</div>
-      <div class="popup-machines">${machineTags}</div>
-      <span class="popup-badge pb-client" style="cursor:pointer;margin-top:8px;">View Full Profile →</span>
-    `);
+  filtered.forEach(em => {
+    const info  = getMachineInfo(em.machineName);
+    const icon  = makeMachineIcon(info, 32);
+    const grid  = gridMap[em.customer.grid_id];
+    const m = L.marker([em.lat, em.lng], { icon });
 
     m.on('click', () => {
-      map.flyTo([c.lat, c.lng], 15, { duration: 0.8 });
-      setTimeout(() => openModal(c, grid), 600);
+      map.flyTo([em.lat, em.lng], 15, { duration: 0.8 });
+      setTimeout(() => openMachineModal(em, grid), 500);
     });
 
+    machineCluster.addLayer(m);
+  });
+
+  document.getElementById('visibleCount').textContent = filtered.length;
+}
+
+// ─────────────────────────────────────────────
+// Grid Drill-Down (Grids view)
+// ─────────────────────────────────────────────
+function activateGrid(gridId) {
+  if (!allData) return;
+  activeGridId = gridId;
+
+  const grid = allData.grids.find(g => g.id === gridId);
+  if (!grid) return;
+
+  if (!map.hasLayer(customerCluster)) map.addLayer(customerCluster);
+  if (!map.hasLayer(infraLayer))      map.addLayer(infraLayer);
+
+  document.getElementById('toggleCustomers').checked = true;
+  document.getElementById('toggleInfra').checked     = true;
+
+  customerCluster.clearLayers();
+  infraLayer.clearLayers();
+  allCustomerMarkers = [];
+
+  const gridMap = {};
+  allData.grids.forEach(g => { gridMap[g.id] = g; });
+
+  allData.customers.forEach(c => {
+    if (c.grid_id !== gridId) return;
+    if (activeFilterMachine && c.machine.trim() !== activeFilterMachine) return;
+    const m = L.marker([c.lat, c.lng], { icon: ICONS.customer });
+    m.on('click', () => {
+      map.flyTo([c.lat, c.lng], 16, { duration: 0.8 });
+      setTimeout(() => openModal(c, grid), 500);
+    });
     customerCluster.addLayer(m);
     allCustomerMarkers.push({ marker: m, data: c });
   });
 
-  document.getElementById('visibleCount').textContent = filtered.length;
-  updateBreadcrumb(data);
+  allData.infrastructure.forEach(inf => {
+    if (inf.grid_id !== gridId) return;
+    const icon = ICONS[inf.type] || ICONS.borehole;
+    const typeLabel = inf.type.charAt(0).toUpperCase() + inf.type.slice(1);
+    const emoji = typeLabel === 'School' ? '🏫' : typeLabel === 'Clinic' ? '🏥' : '💧';
+    const m = L.marker([inf.lat, inf.lng], { icon });
+    m.on('click', () => {
+      map.flyTo([inf.lat, inf.lng], 16, { duration: 0.8 });
+      setTimeout(() => m.openPopup(), 600);
+    });
+    m.bindPopup(`<div class="popup-title">${emoji} ${inf.name}</div><div class="popup-sub" style="margin-top:4px">${inf.description}</div><span class="popup-badge pb-infra">${typeLabel}</span>`);
+    infraLayer.addLayer(m);
+  });
+
+  document.getElementById('visibleCount').textContent = allCustomerMarkers.length;
+  document.getElementById('badgeUnit').textContent    = 'customers';
+
+  map.flyTo([grid.lat, grid.lng], 14, { duration: 1.2 });
+
+  const custCount  = allCustomerMarkers.length;
+  const infraCount = allData.infrastructure.filter(i => i.grid_id === gridId).length;
+  document.getElementById('bcName').textContent = grid.name;
+  document.getElementById('bcMeta').textContent = `${custCount} customer${custCount !== 1 ? 's' : ''} · ${infraCount} infra`;
+  document.getElementById('gridBreadcrumb').classList.add('visible');
+
+  document.getElementById('filterGrid').value = gridId;
+  activeFilterGrid = gridId;
+  renderPills(allData);
 }
 
-function updateBreadcrumb(data) {
-  const bc = document.getElementById('gridBreadcrumb');
-  if (activeFilterGrid || activeFilterMachine) {
-    let name = '';
-    if (activeFilterGrid) {
-      const g = data.grids.find(x => x.id === activeFilterGrid);
-      name = g ? '⚡ ' + g.name : activeFilterGrid;
-      document.getElementById('bcName').textContent = name;
-      document.getElementById('bcMeta').textContent = `${allCustomerMarkers.length} client${allCustomerMarkers.length !== 1 ? 's' : ''}`;
-      document.getElementById('gridBreadcrumb').querySelector('.bc-icon').textContent = '⚡';
-    }
-    if (activeFilterMachine) {
-      document.getElementById('bcName').textContent = activeFilterMachine;
-      document.getElementById('bcMeta').textContent = `${allCustomerMarkers.length} client${allCustomerMarkers.length !== 1 ? 's' : ''}`;
-      document.getElementById('gridBreadcrumb').querySelector('.bc-icon').textContent = '⚙️';
-    }
-    bc.classList.add('visible');
-  } else {
-    bc.classList.remove('visible');
+function deactivateGrid() {
+  activeGridId     = null;
+  activeFilterGrid = '';
+  if (document.getElementById('filterGrid')) {
+    document.getElementById('filterGrid').value = '';
+  }
+  renderPills(allData);
+
+  if (map.hasLayer(customerCluster)) map.removeLayer(customerCluster);
+  if (map.hasLayer(infraLayer))      map.removeLayer(infraLayer);
+
+  customerCluster.clearLayers();
+  infraLayer.clearLayers();
+  allCustomerMarkers = [];
+  document.getElementById('visibleCount').textContent = '0';
+  document.getElementById('gridBreadcrumb').classList.remove('visible');
+
+  if (viewMode === 'grids') {
+    map.flyTo([-13.5, 28.5], 7, { duration: 1.4 });
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Grid layer rendering
-// ─────────────────────────────────────────────────────────────────────────────
-function renderGrids(data) {
+document.getElementById('backToOverview').addEventListener('click', deactivateGrid);
+
+// ─────────────────────────────────────────────
+// Render grids + radius circles
+// ─────────────────────────────────────────────
+function renderMap(data) {
   gridLayer.clearLayers();
   radiusLayer.clearLayers();
 
   data.grids.forEach(g => {
-    // Radius circles
-    L.circle([g.lat, g.lng], {
-      radius: 5000, color: '#f59e0b', weight: 1.2, opacity: 0.65,
-      dashArray: '6 5', fillColor: '#f59e0b', fillOpacity: 0.05, interactive: false
-    }).addTo(radiusLayer);
+    const circle = L.circle([g.lat, g.lng], {
+      radius: 5000, color: '#f59e0b', weight: 1.5, opacity: 0.7,
+      dashArray: '6 5', fillColor: '#f59e0b', fillOpacity: 0.06, interactive: false
+    });
+    radiusLayer.addLayer(circle);
 
     const labelIcon = L.divIcon({
       className: '',
-      html: `<div style="background:rgba(8,12,20,0.8);border:1px solid rgba(245,158,11,0.35);border-radius:4px;padding:2px 7px;font-family:'Space Mono',monospace;font-size:9px;color:#f59e0b;white-space:nowrap;pointer-events:none;">5 km</div>`,
-      iconAnchor: [18, 10]
+      html: `<div style="background:rgba(14,17,23,0.75);border:1px solid rgba(245,158,11,0.4);border-radius:4px;padding:2px 7px;font-family:'Space Mono',monospace;font-size:10px;color:#f59e0b;white-space:nowrap;pointer-events:none;">5 km</div>`,
+      iconAnchor: [20, 10]
     });
     radiusLayer.addLayer(L.marker([g.lat + 0.0449, g.lng], { icon: labelIcon, interactive: false, zIndexOffset: -100 }));
+  });
 
-    // Grid marker
+  data.grids.forEach(g => {
+    const isActive = g.id === activeGridId;
+    const icon = isActive ? makeIcon('⚡', 'rgba(245,158,11,0.45)', '#f59e0b', 44) : ICONS.grid;
     const custCount  = data.customers.filter(c => c.grid_id === g.id).length;
     const infraCount = data.infrastructure.filter(i => i.grid_id === g.id).length;
 
-    const m = L.marker([g.lat, g.lng], { icon: ICONS.grid });
+    const m = L.marker([g.lat, g.lng], { icon, zIndexOffset: isActive ? 200 : 0 });
     m.bindPopup(`
       <div class="popup-title">⚡ ${g.name}</div>
-      <div class="popup-sub">${g.operator}</div>
-      <div class="popup-sub" style="margin-top:3px">⚡ ${g.capacity_kw} kW &nbsp;·&nbsp; 🧑‍🌾 ${custCount} clients &nbsp;·&nbsp; 🏗️ ${infraCount} infra</div>
+      <div class="popup-sub">${g.operator} · ${g.capacity_kw} kW</div>
+      <div class="popup-sub" style="margin-top:3px">👤 ${custCount} customers &nbsp;·&nbsp; 🏗️ ${infraCount} infrastructure</div>
       <div class="popup-sub" style="margin-top:3px">Commissioned ${g.commissioned}</div>
-      <span class="popup-badge pb-grid">Filter clients from this grid →</span>
+      <span class="popup-badge pb-grid">Click marker to explore ↗</span>
     `);
     m.on('click', () => {
-      activeFilterGrid = g.id;
-      document.getElementById('filterGrid').value = g.id;
-      renderCustomers(data);
-      renderPills(data);
-      map.flyTo([g.lat, g.lng], 13, { duration: 1.0 });
+      if (viewMode === 'grids') activateGrid(g.id);
     });
     gridLayer.addLayer(m);
   });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Infrastructure
-// ─────────────────────────────────────────────────────────────────────────────
-function renderInfra(data) {
-  infraLayer.clearLayers();
-  data.infrastructure.forEach(inf => {
-    const icon = ICONS[inf.type] || ICONS.borehole;
-    const typeLabel = inf.type.charAt(0).toUpperCase() + inf.type.slice(1);
-    const emoji = typeLabel === 'School' ? '🏫' : typeLabel === 'Clinic' ? '🏥' : '💧';
-    const m = L.marker([inf.lat, inf.lng], { icon });
-    m.bindPopup(`
-      <div class="popup-title">${emoji} ${inf.name}</div>
-      <div class="popup-sub" style="margin-top:4px">${inf.description}</div>
-      <span class="popup-badge pb-infra">${typeLabel}</span>
-    `);
-    infraLayer.addLayer(m);
-  });
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Filters & pills
-// ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// Populate Filters
+// ─────────────────────────────────────────────
 function populateFilters(data) {
-  const gridSel = document.getElementById('filterGrid');
+  const gridSel    = document.getElementById('filterGrid');
+  const machineSel = document.getElementById('filterMachine');
+  const machTypeSel = document.getElementById('filterMachineType');
+  const machGridSel = document.getElementById('filterMachineGrid');
+
   data.grids.forEach(g => {
-    const opt = document.createElement('option');
-    opt.value = g.id; opt.textContent = g.name;
-    gridSel.appendChild(opt);
-  });
-
-  // Build machine chips
-  const machineSet = new Set();
-  data.customers.forEach(c => {
-    parseMachines(c.machine).forEach(m => machineSet.add(m.name));
-  });
-
-  const chipsContainer = document.getElementById('machineChips');
-  chipsContainer.innerHTML = '';
-  [...machineSet].sort().forEach(name => {
-    const meta = getMachineMeta(name);
-    const chip = document.createElement('div');
-    chip.className = 'machine-chip';
-    chip.dataset.machine = name;
-    chip.innerHTML = `<span class="chip-dot"></span>${meta.icon} ${name}`;
-    chip.addEventListener('click', () => {
-      if (activeFilterMachine === name) {
-        activeFilterMachine = '';
-        chip.classList.remove('active');
-      } else {
-        document.querySelectorAll('.machine-chip').forEach(c => c.classList.remove('active'));
-        activeFilterMachine = name;
-        chip.classList.add('active');
-      }
-      renderCustomers(data);
-      renderPills(data);
+    [gridSel, machGridSel].forEach(sel => {
+      const opt = document.createElement('option');
+      opt.value = g.id; opt.textContent = g.name;
+      sel.appendChild(opt);
     });
-    chipsContainer.appendChild(chip);
+  });
+
+  // Collect unique raw machine names
+  const machines = [...new Set(data.customers.map(c => c.machine.trim()))].sort();
+  machines.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m; opt.textContent = m;
+    machineSel.appendChild(opt);
+  });
+
+  // Collect unique expanded machine names
+  const expandedNames = [...new Set(expandedMachines.map(em => em.machineName))].sort();
+  expandedNames.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name; opt.textContent = name;
+    machTypeSel.appendChild(opt);
   });
 }
 
+// ─────────────────────────────────────────────
+// Stats
+// ─────────────────────────────────────────────
+function updateStats(data) {
+  document.getElementById('statGrids').textContent     = data.grids.length;
+  document.getElementById('statCustomers').textContent = data.customers.length;
+  document.getElementById('statMachines').textContent  = expandedMachines.length;
+}
+
+// ─────────────────────────────────────────────
+// Filter Pills
+// ─────────────────────────────────────────────
 function renderPills(data) {
+  if (!data) return;
   const wrap = document.getElementById('activeFilters');
   wrap.innerHTML = '';
+  if (!activeFilterGrid && !activeFilterMachine) return;
+
   if (activeFilterGrid) {
     const g = data.grids.find(x => x.id === activeFilterGrid);
-    addPill(wrap, '⚡ ' + (g ? g.name : activeFilterGrid), () => {
+    addPill(wrap, g ? g.name : activeFilterGrid, () => {
       activeFilterGrid = '';
       document.getElementById('filterGrid').value = '';
-      renderCustomers(data);
-      renderPills(data);
+      renderPills(data); renderMap(data);
     });
   }
   if (activeFilterMachine) {
-    addPill(wrap, '⚙️ ' + activeFilterMachine, () => {
+    addPill(wrap, activeFilterMachine, () => {
       activeFilterMachine = '';
-      document.querySelectorAll('.machine-chip').forEach(c => c.classList.remove('active'));
-      renderCustomers(data);
-      renderPills(data);
+      document.getElementById('filterMachine').value = '';
+      renderPills(data); renderMap(data);
     });
   }
 }
@@ -1038,59 +864,78 @@ function addPill(container, label, onRemove) {
   container.appendChild(pill);
 }
 
-function updateStats(data) {
-  document.getElementById('statCustomers').textContent = data.customers.length;
-  document.getElementById('statGrids').textContent     = data.grids.length;
-  const totalKw = data.grids.reduce((s, g) => s + g.capacity_kw, 0);
-  document.getElementById('statKw').textContent        = totalKw >= 1000 ? (totalKw/1000).toFixed(1)+'M' : totalKw;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Modal
-// ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// Modal — Customer (Grids view)
+// ─────────────────────────────────────────────
 function openModal(customer, grid) {
-  document.getElementById('modalName').textContent = customer.name;
-  document.getElementById('modalId').textContent = customer.id;
-  document.getElementById('modalPhone').textContent = customer.phone && customer.phone.trim() !== '+260' ? customer.phone : 'Not on file';
-  document.getElementById('modalCoords').textContent = `${customer.lat.toFixed(5)}, ${customer.lng.toFixed(5)}`;
+  document.getElementById('modalMachineSection').style.display = 'none';
+  document.getElementById('modalAvatar').textContent = '👤';
+  document.getElementById('modalName').textContent    = customer.name;
+  document.getElementById('modalGrid').textContent    = grid ? grid.name : '—';
+  document.getElementById('modalMachine').textContent = customer.machine;
+  document.getElementById('modalPhone').textContent   = customer.phone;
+  document.getElementById('modalCoords').textContent  = `${customer.lat.toFixed(5)}, ${customer.lng.toFixed(5)}`;
 
   const status = document.getElementById('modalStatus');
   status.textContent = customer.account_status;
   status.className   = `modal-status ${customer.account_status}`;
 
-  // Site info
-  if (grid) {
-    document.getElementById('modalGridName').textContent = grid.name;
-    document.getElementById('modalGridMeta').textContent = `${grid.capacity_kw} kW · ${grid.operator} · ${grid.status.toUpperCase()}`;
-  } else {
-    document.getElementById('modalGridName').textContent = 'Unknown site';
-    document.getElementById('modalGridMeta').textContent = '';
-  }
-
-  // Machines
-  const machines = parseMachines(customer.machine);
-  const machinesEl = document.getElementById('modalMachines');
-  if (machines.length) {
-    machinesEl.innerHTML = machines.map(mc => `
-      <div class="machine-card">
-        <div class="machine-card-icon">${mc.icon}</div>
-        <div class="machine-card-info">
-          <div class="machine-card-type">${mc.name}</div>
-          <div class="machine-card-cat">${mc.cat}</div>
-        </div>
-      </div>
-    `).join('');
-  } else {
-    machinesEl.innerHTML = '<div style="color:var(--muted);font-size:12px;">No machine data</div>';
-  }
-
-  // Image
   const imgWrap = document.getElementById('modalImageWrap');
-  if (customer.image) {
-    imgWrap.innerHTML = `<div style="border-radius:10px;overflow:hidden;"><img src="${customer.image}" alt="${customer.name}" style="width:100%;display:block;" /></div>`;
+  imgWrap.innerHTML = customer.image
+    ? `<div class="modal-image"><img src="${customer.image}" alt="${customer.name}" /></div>`
+    : `<div class="img-placeholder"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>No image available</div>`;
+
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+// ─────────────────────────────────────────────
+// Modal — Machine (Machines view)
+// ─────────────────────────────────────────────
+function openMachineModal(expandedEntry, grid) {
+  const cust = expandedEntry.customer;
+  const machInfo = getMachineInfo(expandedEntry.machineName);
+
+  // Show machine highlight section
+  document.getElementById('modalMachineSection').style.display = '';
+
+  // Build machine chips — show all machines this customer owns (from expanded list)
+  const custMachines = expandedMachines.filter(em => em.customer.id === cust.id);
+  const chipsEl = document.getElementById('modalMachineChips');
+  chipsEl.innerHTML = '';
+
+  if (custMachines.length > 0) {
+    custMachines.forEach(em => {
+      const info = getMachineInfo(em.machineName);
+      const isActive = em.machineName === expandedEntry.machineName;
+      const chip = document.createElement('div');
+      chip.className = `machine-chip ${isActive ? 'active-machine' : 'other-machine'}`;
+      chip.innerHTML = `<div class="machine-chip-dot" style="background:${info.color}"></div>${info.emoji} ${em.machineName}${isActive ? ' ← this marker' : ''}`;
+      chipsEl.appendChild(chip);
+    });
   } else {
-    imgWrap.innerHTML = `<div class="img-placeholder"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>No image on file</div>`;
+    // fallback: just show the current machine
+    const chip = document.createElement('div');
+    chip.className = 'machine-chip active-machine';
+    chip.innerHTML = `<div class="machine-chip-dot" style="background:${machInfo.color}"></div>${machInfo.emoji} ${expandedEntry.machineName}`;
+    chipsEl.appendChild(chip);
   }
+
+  // Set avatar to machine emoji
+  document.getElementById('modalAvatar').textContent = machInfo.emoji;
+  document.getElementById('modalName').textContent    = cust.name;
+  document.getElementById('modalGrid').textContent    = grid ? grid.name : '—';
+  document.getElementById('modalMachine').textContent = expandedEntry.machineName;
+  document.getElementById('modalPhone').textContent   = cust.phone;
+  document.getElementById('modalCoords').textContent  = `${expandedEntry.lat.toFixed(5)}, ${expandedEntry.lng.toFixed(5)}`;
+
+  const status = document.getElementById('modalStatus');
+  status.textContent = cust.account_status;
+  status.className   = `modal-status ${cust.account_status}`;
+
+  const imgWrap = document.getElementById('modalImageWrap');
+  imgWrap.innerHTML = cust.image
+    ? `<div class="modal-image"><img src="${cust.image}" alt="${cust.name}" /></div>`
+    : `<div class="img-placeholder"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>No image available</div>`;
 
   document.getElementById('modalOverlay').classList.add('open');
 }
@@ -1100,65 +945,30 @@ document.getElementById('modalOverlay').addEventListener('click', e => { if (e.t
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Search (clients + grids)
-// ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// Grid Search
+// ─────────────────────────────────────────────
 function initSearch(data) {
   const input   = document.getElementById('searchInput');
   const results = document.getElementById('searchResults');
-  const gridMap = {};
-  data.grids.forEach(g => { gridMap[g.id] = g; });
 
   input.addEventListener('input', () => {
     const q = input.value.trim().toLowerCase();
     results.innerHTML = '';
     if (!q) { results.classList.remove('open'); return; }
-
-    const clientMatches = data.customers.filter(c => c.name.toLowerCase().includes(q));
-    const gridMatches   = data.grids.filter(g => g.name.toLowerCase().includes(q));
-
-    if (!clientMatches.length && !gridMatches.length) { results.classList.remove('open'); return; }
-
-    if (gridMatches.length) {
-      const hdr = document.createElement('div');
-      hdr.style.cssText = 'padding:5px 12px;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);';
-      hdr.textContent = 'Grids';
-      results.appendChild(hdr);
-      gridMatches.slice(0, 5).forEach(g => {
-        const item = document.createElement('div');
-        item.className = 'search-result-item';
-        item.innerHTML = `<span style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;display:inline-block;"></span>⚡ ${g.name} <span style="margin-left:auto;font-size:10px;color:var(--muted);">${g.capacity_kw}kW</span>`;
-        item.addEventListener('click', () => {
-          activeFilterGrid = g.id;
-          document.getElementById('filterGrid').value = g.id;
-          renderCustomers(data);
-          renderPills(data);
-          map.flyTo([g.lat, g.lng], 13, { duration: 1.0 });
-          input.value = ''; results.classList.remove('open');
-        });
-        results.appendChild(item);
+    const matches = data.grids.filter(g => g.name.toLowerCase().includes(q));
+    if (!matches.length) { results.classList.remove('open'); return; }
+    matches.forEach(g => {
+      const item = document.createElement('div');
+      item.className = 'search-result-item';
+      item.innerHTML = `<span class="ri-dot"></span>${g.name}`;
+      item.addEventListener('click', () => {
+        if (viewMode === 'grids') activateGrid(g.id);
+        input.value = '';
+        results.classList.remove('open');
       });
-    }
-
-    if (clientMatches.length) {
-      const hdr = document.createElement('div');
-      hdr.style.cssText = 'padding:5px 12px;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);';
-      hdr.textContent = 'Clients';
-      results.appendChild(hdr);
-      clientMatches.slice(0, 5).forEach(c => {
-        const grid = gridMap[c.grid_id];
-        const item = document.createElement('div');
-        item.className = 'search-result-item';
-        item.innerHTML = `<span style="width:8px;height:8px;border-radius:50%;background:var(--client);flex-shrink:0;display:inline-block;"></span>🧑‍🌾 ${c.name} <span style="margin-left:auto;font-size:10px;color:var(--muted);">${grid ? grid.name : ''}</span>`;
-        item.addEventListener('click', () => {
-          map.flyTo([c.lat, c.lng], 15, { duration: 0.9 });
-          setTimeout(() => openModal(c, grid), 700);
-          input.value = ''; results.classList.remove('open');
-        });
-        results.appendChild(item);
-      });
-    }
-
+      results.appendChild(item);
+    });
     results.classList.add('open');
   });
 
@@ -1167,65 +977,78 @@ function initSearch(data) {
   });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Layer Toggles
-// ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 function initLayerToggles() {
-  document.getElementById('toggleCustomers').addEventListener('change', function() {
-    this.checked ? map.addLayer(customerCluster) : map.removeLayer(customerCluster);
-  });
   document.getElementById('toggleGrids').addEventListener('change', function() {
     this.checked ? map.addLayer(gridLayer) : map.removeLayer(gridLayer);
   });
   document.getElementById('toggleRadii').addEventListener('change', function() {
     this.checked ? map.addLayer(radiusLayer) : map.removeLayer(radiusLayer);
   });
+  document.getElementById('toggleCustomers').addEventListener('change', function() {
+    if (!activeGridId) { this.checked = false; return; }
+    this.checked ? map.addLayer(customerCluster) : map.removeLayer(customerCluster);
+  });
   document.getElementById('toggleInfra').addEventListener('change', function() {
+    if (!activeGridId) { this.checked = false; return; }
     this.checked ? map.addLayer(infraLayer) : map.removeLayer(infraLayer);
   });
-  document.getElementById('toggleProvinces').addEventListener('change', function() {
-    this.checked ? map.addLayer(provinceLayer) : map.removeLayer(provinceLayer);
+  // Machine view toggles
+  document.getElementById('toggleGridsMach').addEventListener('change', function() {
+    this.checked ? map.addLayer(gridLayer) : map.removeLayer(gridLayer);
+  });
+  document.getElementById('toggleRadiiMach').addEventListener('change', function() {
+    this.checked ? map.addLayer(radiusLayer) : map.removeLayer(radiusLayer);
+  });
+  document.getElementById('toggleMachines').addEventListener('change', function() {
+    this.checked ? map.addLayer(machineCluster) : map.removeLayer(machineCluster);
   });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Filter Events
-// ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 function initFilters(data) {
   document.getElementById('filterGrid').addEventListener('change', function() {
-    activeFilterGrid = this.value;
-    renderCustomers(data);
+    if (this.value) activateGrid(this.value);
+    else deactivateGrid();
+  });
+
+  document.getElementById('filterMachine').addEventListener('change', function() {
+    activeFilterMachine = this.value;
+    if (activeGridId) activateGrid(activeGridId);
     renderPills(data);
-    if (this.value) {
-      const g = data.grids.find(x => x.id === this.value);
-      if (g) map.flyTo([g.lat, g.lng], 13, { duration: 1.0 });
-    }
   });
 
   document.getElementById('resetFilters').addEventListener('click', () => {
-    activeFilterGrid    = '';
     activeFilterMachine = '';
-    document.getElementById('filterGrid').value = '';
-    document.querySelectorAll('.machine-chip').forEach(c => c.classList.remove('active'));
-    renderCustomers(data);
-    renderPills(data);
-    map.flyTo([-13.5, 28.5], 7, { duration: 1.2 });
+    document.getElementById('filterMachine').value = '';
+    deactivateGrid();
   });
 
-  document.getElementById('backToOverview').addEventListener('click', () => {
-    activeFilterGrid    = '';
-    activeFilterMachine = '';
-    document.getElementById('filterGrid').value = '';
-    document.querySelectorAll('.machine-chip').forEach(c => c.classList.remove('active'));
-    renderCustomers(data);
-    renderPills(data);
-    map.flyTo([-13.5, 28.5], 7, { duration: 1.2 });
+  // Machine view filters
+  document.getElementById('filterMachineType').addEventListener('change', function() {
+    machineFilterType = this.value;
+    renderMachineMarkers();
+  });
+  document.getElementById('filterMachineGrid').addEventListener('change', function() {
+    machineFilterGrid = this.value;
+    renderMachineMarkers();
+  });
+  document.getElementById('resetMachineFilters').addEventListener('click', () => {
+    machineFilterType = '';
+    machineFilterGrid = '';
+    document.getElementById('filterMachineType').value = '';
+    document.getElementById('filterMachineGrid').value = '';
+    renderMachineMarkers();
   });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Sidebar Toggle
-// ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 const sidebarEl = document.getElementById('sidebar');
 const toggleBtn = document.getElementById('sidebarToggle');
 const overlayEl = document.getElementById('sidebarOverlay');
@@ -1234,53 +1057,33 @@ function isMobile() { return window.innerWidth <= 640; }
 
 function setSidebarState(collapsed) {
   sidebarEl.classList.toggle('collapsed', collapsed);
-  toggleBtn.classList.toggle('sidebar-open',   !collapsed);
-  toggleBtn.classList.toggle('sidebar-closed',  collapsed);
+  toggleBtn.classList.toggle('sidebar-open',  !collapsed);
+  toggleBtn.classList.toggle('sidebar-closed', collapsed);
   if (isMobile()) {
     overlayEl.style.display = collapsed ? 'none' : 'block';
   } else {
     overlayEl.style.display = 'none';
-    setTimeout(() => map.invalidateSize(), 340);
+    setTimeout(() => map.invalidateSize(), 320);
   }
 }
 
 toggleBtn.addEventListener('click', () => setSidebarState(!sidebarEl.classList.contains('collapsed')));
 overlayEl.addEventListener('click', () => setSidebarState(true));
-window.addEventListener('resize', () => { if (!isMobile()) overlayEl.style.display = 'none'; map.invalidateSize(); });
+window.addEventListener('resize', () => {
+  if (!isMobile()) overlayEl.style.display = 'none';
+  map.invalidateSize();
+});
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Province tooltip style (injected)
-// ─────────────────────────────────────────────────────────────────────────────
-const provStyle = document.createElement('style');
-provStyle.textContent = `
-  .province-tooltip {
-    background: rgba(255,255,255,0.92) !important;
-    border: 1px solid rgba(0,0,0,0.12) !important;
-    border-radius: 6px !important;
-    color: #1e2535 !important;
-    font-family: 'Outfit', sans-serif !important;
-    font-size: 12px !important;
-    font-weight: 600 !important;
-    padding: 4px 10px !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
-    white-space: nowrap !important;
-  }
-  .province-tooltip::before { display: none !important; }
-`;
-document.head.appendChild(provStyle);
-
-// ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Boot
-// ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 function bootApp(data) {
-  allData = data;
+  allData          = data;
+  expandedMachines = expandMachines(data.customers);
+
   updateStats(data);
-  renderProvinces();
-  buildProvinceList(data);
-  renderCustomers(data);   // Clients first!
-  renderGrids(data);        // Grids ready but layer is OFF
-  renderInfra(data);
   populateFilters(data);
+  renderMap(data);
   initSearch(data);
   initLayerToggles();
   initFilters(data);
@@ -1289,13 +1092,8 @@ function bootApp(data) {
 function showError(msg) {
   console.error(msg);
   const div = document.createElement('div');
-  div.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:999;background:rgba(8,12,20,0.92)';
-  div.innerHTML = `<div style="text-align:center;color:#e2e8f5;font-family:Outfit,sans-serif;max-width:420px;padding:0 24px">
-    <div style="font-size:40px;margin-bottom:12px">⚠️</div>
-    <div style="font-size:16px;font-weight:600;margin-bottom:8px">Could not load data</div>
-    <div style="font-size:12px;color:#6b7a99;background:#182030;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 14px;text-align:left;font-family:monospace;word-break:break-all;margin-bottom:12px">${msg}</div>
-    <div style="font-size:12px;color:#6b7a99">Make sure <code style="background:#182030;padding:1px 5px;border-radius:4px">data.json</code> is present and visit via <code style="background:#182030;padding:1px 5px;border-radius:4px">http://localhost:8000</code></div>
-  </div>`;
+  div.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:999;background:rgba(14,17,23,0.88)';
+  div.innerHTML = `<div style="text-align:center;color:#e8eaf0;font-family:DM Sans,sans-serif;max-width:420px;padding:0 24px"><div style="font-size:40px;margin-bottom:12px">⚠️</div><div style="font-size:16px;font-weight:600;margin-bottom:8px">Could not load data</div><div style="font-size:12px;color:#7a8499;background:#1e2535;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;text-align:left;font-family:monospace;word-break:break-all;margin-bottom:12px">${msg}</div></div>`;
   document.getElementById('map-wrap').appendChild(div);
 }
 
@@ -1303,8 +1101,8 @@ if (window.SOLAR_DATA) {
   bootApp(window.SOLAR_DATA);
 } else {
   fetch('data.json')
-    .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status} ${r.statusText}`); return r.text(); })
-    .then(text => { let p; try { p = JSON.parse(text); } catch(e) { throw new Error(`JSON parse error: ${e.message}`); } bootApp(p); })
+    .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.text(); })
+    .then(text => { bootApp(JSON.parse(text)); })
     .catch(err => showError(err.message));
 }
 </script>
